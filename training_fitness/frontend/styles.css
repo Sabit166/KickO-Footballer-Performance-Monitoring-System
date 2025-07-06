@@ -1,0 +1,122 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-image: url('./assets/images/fitness_background.avif');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: #f1f1f1;  /* Light text for dark background */
+    padding: 30px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+h1, h2 {
+  color: #41a0b1; /* Bright neon blue */
+  margin-top: 40px;
+  text-align: center;
+}
+
+form, table, #metrics-modal {
+    background: rgba(0, 0, 0, 0.7); /* Semi-transparent dark card */
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 8px 5px;
+    border: 1px solid #555;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #1a1a1a;
+    color: #f1f1f1;
+}
+
+input:focus, select:focus {
+    border-color: #00b4d8;
+    outline: none;
+    box-shadow: 0 0 5px #00b4d8;
+}
+
+button {
+    background-color: #0077b6;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #00b4d8;
+    transform: scale(1.05);
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    overflow-x: auto;
+}
+
+table, th, td {
+    border: 1px solid #444;
+}
+
+th {
+    background-color: #023e8a;
+    color: #fff;
+    font-weight: 600;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+}
+
+tr:hover {
+    background-color: rgba(0, 180, 216, 0.2);
+}
+
+#metrics-modal {
+    display: none;
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 500px;
+    z-index: 999;
+    border: 2px solid #00b4d8;
+    background-color: rgba(0, 0, 0, 0.85);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    border-radius: 12px;
+    color: #f1f1f1;
+}
+
+#metrics-modal h2 {
+    margin-top: 0;
+    color: #90e0ef;
+}
+
+button:active {
+    transform: scale(0.98);
+    background-color: #0096c7;
+}
+#metrics-modal button {
+    background-color: #0077b6;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 8px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}

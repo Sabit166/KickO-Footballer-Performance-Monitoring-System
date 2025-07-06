@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fitness & Training - Bangladesh Football Team</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <h1>Fitness and Training Dashboard</h1>
+
+  <!-- Section 1: Add / Edit Training Session -->
+  <h2 id="form-title">Add New Training Session</h2>
+  <form id="training-form">
+    <input type="hidden" id="session-id"> <!-- for edit purpose -->
+    <input type="text" id="player-id" placeholder="Player ID" required>
+    <select id="session-type" required>
+      <option value="">Select Session Type</option>
+      <option value="Strength">Strength</option>
+      <option value="Endurance">Endurance</option>
+      <option value="Tactical">Tactical</option>
+      <option value="Recovery">Recovery</option>
+    </select>
+    <input type="number" id="duration" placeholder="Duration (min)" required>
+    <input type="number" id="load" placeholder="Load (1-10)" required>
+    <input type="date" id="session-date" required>
+    <input type="text" id="remarks" placeholder="Remarks (optional)">
+    <button type="submit" id="submit-btn">Add Session</button>
+  </form>
+
+  <!-- Section 2: Filter Training Records -->
+  <h2>Filter Training Records</h2>
+  <form id="filter-form">
+    <input type="text" id="filter-player-id" placeholder="Player ID">
+    <input type="date" id="from-date">
+    <input type="date" id="to-date">
+    <button type="submit">Apply Filter</button>
+    <button type="button" id="reset-btn">Reset</button>
+  </form>
+
+  <!-- Section 3: Table of Training Sessions -->
+  <h2>Training Session Records</h2>
+  <table id="records-table">
+    <thead>
+      <tr>
+        <th>Player ID</th>
+        <th>Session Type</th>
+        <th>Duration</th>
+        <th>Load</th>
+        <th>Date</th>
+        <th>Remarks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="records-body">
+      <!-- Dynamic rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <!-- Section 4: Fitness Metrics Modal -->
+  <div id="metrics-modal">
+    <h2>Fitness Metrics (View/Edit)</h2>
+    <form id="metrics-form">
+      <input type="hidden" id="metrics-player-id">
+      <input type="number" id="vo2-max" placeholder="VO2 Max">
+      <input type="number" id="heart-rate" placeholder="Heart Rate">
+      <input type="number" id="recovery-time" placeholder="Recovery Time (min)">
+      <input type="number" id="soreness-level" placeholder="Soreness Level (1-10)">
+      <button type="submit">Save Metrics</button>
+      <button type="button" onclick="document.getElementById('metrics-modal').style.display='none'">Close</button>
+    </form>
+  </div>
+    <script src="script.js"></script>
+
+</body>
+</html>
