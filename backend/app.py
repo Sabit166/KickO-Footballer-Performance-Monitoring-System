@@ -7,7 +7,7 @@ from models.training import training_bp
 from models.injury import injury_bp
 from models.match import match_bp
 from models.medical_staff import medical_staff_bp
-from models.performance_stats import player_stats_bp
+from backend.models.player_performance import player_stats_bp
 
 app = Flask(__name__)
 
