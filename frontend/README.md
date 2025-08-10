@@ -71,18 +71,33 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/t
 
 
   /)/)
+
 ( . .)
+
 ( づ♡
+
 Hello guys!!!!This is for your help.Follow the steps below to run react app
+
 1.Install node js[https://nodejs.org/en/download]
+
 2.open the terminal and change the directory to frontend
+
 3.type "npm install" in the terminal and npm(Node Package Manager) will automatically install all the dependencies
+
 4.If it gives error despite of the nodejs being detected by the window cmd but not in vscode then try restarting the vs code or simply change the vs code terminal to comaand prompt from the terminal dropdown menu.It will solve the issue
-5.For the time being we will not change anything in the public folder expecially index.html.Leave them as they are 
+
+5.For the time being we will not change anything in the public folder expecially index.html.Leave them as they are
+ 
 6.All the supporting Js files will be at Components folder
+
 7.I have added bootsrap css and script so we can use the template available at [https://getbootstrap.com/docs/5.3/getting-started/introduction/].Feel free to use them.
+
 8.You can find resources here [https://react.dev/learn]
+
 9.I would recommend Code With Harry youtube channel if you want to learn some basics to get started with
+
 10.If anything goes wrong during installation delete all things and start from the beginning
+
 11.I have updated the .gitignore file so you can commit and push without worrying
+
 (👉ﾟヮﾟ)👉Happy Coding
