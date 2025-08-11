@@ -1,5 +1,5 @@
 venv/
-*.sql
+
 
 /node_modules
 /.pnp
