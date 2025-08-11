@@ -17,7 +17,6 @@ root.render(
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
