@@ -6,8 +6,8 @@ def get_db():
         g.db = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="your_password",
-            database="football_management"
+            password="root",
+            database="p_dbms"
         )
     return g.db
 

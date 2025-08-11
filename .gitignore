@@ -10,7 +10,6 @@ venv/
 
 # production
 /build
-*.json
 *.pyc
 # misc
 .DS_Store
