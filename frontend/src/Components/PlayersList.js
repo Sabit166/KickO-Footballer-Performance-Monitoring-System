@@ -1,22 +1,20 @@
-import React from "react";
-import { Link } from "react-router-dom";
-
-const dummyPlayers = [
-  { id: 1, name: "Sabbir", height: "5'9", position: "Midfielder", team: "Dhaka United" },
-  { id: 2, name: "Kamal", height: "6'0", position: "Defender", team: "Chittagong Kings" },
-];
+import React, { useEffect, useState } from 'react';
 
 function PlayersList() {
+  const [players, setPlayers] = useState([]);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:5000/players')
+      .then(response => response.json())
+      .then(data => setPlayers(data));
+  }, []);
+
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Players</h2>
+    <div>
+      <h2>Players</h2>
       <ul>
-        {dummyPlayers.map((player) => (
-          <li key={player.id} className="mb-2">
-            <Link to={`/players/${player.id}`} className="text-blue-600">
-              {player.name} - {player.position} ({player.team})
-            </Link>
-          </li>
+        {players.map(player => (
+          <li key={player.id}>{player.name}</li>
         ))}
       </ul>
     </div>

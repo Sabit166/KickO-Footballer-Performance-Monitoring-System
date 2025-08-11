@@ -1,7 +1,9 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
+import PlayersList from './Components/PlayersList';
 import './App.css';
 import { Box, Typography, Button, Container } from '@mui/material';
-import backgroundImage from './background_home.png';
-import { useNavigate } from 'react-router-dom';
+import backgroundImage from './background_home.png'; // Make sure this file is in src/ folder
 
 function App() {
   const navigate = useNavigate();
@@ -24,8 +26,8 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            bgcolor: 'rgba(255, 255, 255, 0.2)',
-            backdropFilter: 'blur(8px)',
+            bgcolor: 'rgba(255, 255, 255, 0.2)', // Transparent effect
+            backdropFilter: 'blur(8px)', // Frosted glass effect
             p: 4,
             borderRadius: 3,
             boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
@@ -69,7 +71,6 @@ function App() {
               fontWeight: 'bold',
               fontSize: 18,
             }}
-            onClick={() => navigate('/login')}
           >
             Explore
           </Button>
