@@ -1,8 +1,11 @@
 import './App.css';
 import { Box, Typography, Button, Container } from '@mui/material';
-import backgroundImage from './background_home.png'; // Make sure this file is in src/ folder
+import backgroundImage from './background_home.png';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
+  const navigate = useNavigate();
+
   return (
     <Box
       sx={{
@@ -21,8 +24,8 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            bgcolor: 'rgba(255, 255, 255, 0.2)', // Transparent effect
-            backdropFilter: 'blur(8px)', // Frosted glass effect
+            bgcolor: 'rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(8px)',
             p: 4,
             borderRadius: 3,
             boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
@@ -66,6 +69,7 @@ function App() {
               fontWeight: 'bold',
               fontSize: 18,
             }}
+            onClick={() => navigate('/login')}
           >
             Explore
           </Button>
