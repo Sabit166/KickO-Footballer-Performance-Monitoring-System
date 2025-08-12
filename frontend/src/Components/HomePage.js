@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 function HomePage() {
   const navigate = useNavigate();
     const handleClick = () =>{
-          navigate('/test');
+          navigate('login');
     }
 
   return (
@@ -70,13 +70,13 @@ function HomePage() {
             color="primary"
             size="large"
             sx={{
-              borderRadius: 2,
+              borderRadius: 20,
               px: 5,
               fontWeight: 'bold',
               fontSize: 18,
             }}
           >
-            Explore
+            Login
           </Button>
         </Box>
       </Container>
