@@ -1,3 +1,6 @@
+# Test route to check database connection
+from backend.db import get_db
+
 from flask import Flask
 from .db import close_db
 from .models.player import player_bp
@@ -31,6 +34,18 @@ def teardown_db(exception):
 @app.route("/")
 def home():
     return "Welcome to the KickO API!"
+
+
+@app.route('/test-db')
+def test_db():
+    try:
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("SELECT 1")
+        result = cursor.fetchone()
+        return f"DB Test Result: {result}"
+    except Exception as e:
+        return f"DB Error: {e}"
 
 if __name__ == "__main__":
     app.run(debug=True)

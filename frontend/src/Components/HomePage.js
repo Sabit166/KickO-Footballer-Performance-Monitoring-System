@@ -4,8 +4,14 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import backgroundImage from '../background_home.png';
+import { useNavigate } from 'react-router-dom';
 
 function HomePage() {
+  const navigate = useNavigate();
+    const handleClick = () =>{
+          navigate('/test');
+    }
+
   return (
     <Box
       sx={{
@@ -59,7 +65,7 @@ function HomePage() {
             and match performance. Empower your team with data-driven insights for
             better decisions and improved results.
           </Typography>
-          <Button
+          <Button onClick={handleClick}
             variant="contained"
             color="primary"
             size="large"

@@ -7,10 +7,16 @@ import backgroundImage from './background_home.png'; // Make sure this file is i
 import HomePage from './Components/HomePage';
 
 function App() {
-  const navigate = useNavigate();
+
 
   return (
-     <HomePage />
+     <Router>
+       <Routes>
+         <Route path="/" element={<HomePage />} />
+         <Route path="/players" element={<PlayersList />} />
+         <Route path="/test" element={<Test />} />
+       </Routes>
+     </Router>
   );
 }
 
