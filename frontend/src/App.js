@@ -3,8 +3,6 @@ import { Fade } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes, useNavigate } from 'react-router-dom';
 import PlayersList from './Components/PlayersList';
 import './App.css';
-import { Box, Typography, Button, Container } from '@mui/material';
-import backgroundImage from './background_home.png'; // Make sure this file is in src/ folder
 import HomePage from './Components/HomePage';
 import Login from './Components/NewLogin';
 
