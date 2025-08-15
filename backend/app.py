@@ -1,5 +1,7 @@
 # Test route to check database connection
 from backend.db import get_db
+from flask_cors import CORS
+
 
 from flask import Flask
 from .db import close_db
@@ -13,6 +15,7 @@ from .models.medical_staff import medical_staff_bp
 from .models.player_performance import player_stats_bp
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000"])
 
 # Register blueprints
 app.register_blueprint(player_bp)
