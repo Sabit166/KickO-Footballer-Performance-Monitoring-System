@@ -16,10 +16,10 @@ def update_stats(stats_id):
     db = get_db()
     cursor = db.cursor()
     sql = """UPDATE PLAYER_STATS 
-             SET GOALS=%s, ASSISTS=%s, MINUTES_PLAYED=%s, FOULS=%s 
+             SET GOALS=%s, ASSISTS=%s, FOULS=%s, YELLOW_CARDS=%s, RED_CARDS=%s, MINUTES_PLAYED=%s
              WHERE STATS_ID=%s"""
     cursor.execute(sql, (data['GOALS'], data['ASSISTS'], 
-                         data['MINUTES_PLAYED'], data['FOULS'], stats_id))
+                         data['FOULS'], data['YELLOW_CARDS'], data['RED_CARDS'], data['MINUTES_PLAYED'], stats_id))
     db.commit()
     return jsonify({"message": "Player stats updated"})
 
