@@ -31,3 +31,14 @@ def delete_team(team_id):
     cursor.execute("DELETE FROM TEAM WHERE TEAM_ID=%s", (team_id,))
     db.commit()
     return jsonify({"message": "Team deleted successfully"})
+
+# CREATE a new team
+@team_bp.route('/teams', methods=['POST'])
+def add_team():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO TEAM (TEAM_ID, TEAM_NAME) VALUES (%s, %s)"
+    cursor.execute(sql, (data['TEAM_ID'], data['TEAM_NAME']))
+    db.commit()
+    return jsonify({"message": "Team added successfully"})

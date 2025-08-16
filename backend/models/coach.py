@@ -3,6 +3,19 @@ from db import get_db
 
 coach_bp = Blueprint('coach', __name__)
 
+
+# CREATE a new coach
+@coach_bp.route('/coaches', methods=['POST'])
+def add_coach():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO COACH (COACH_NAME, TEAM_ID) VALUES (%s, %s)"
+    cursor.execute(sql, (data['COACH_NAME'], data['TEAM_ID']))
+    db.commit()
+    return jsonify({"message": "Coach added successfully", "COACH_ID": cursor.lastrowid})
+
+
 @coach_bp.route('/coaches', methods=['GET'])
 def get_coaches():
     db = get_db()

@@ -3,6 +3,19 @@ from db import get_db
 
 training_bp = Blueprint('training', __name__)
 
+# CREATE a new training record
+@training_bp.route('/trainings', methods=['POST'])
+def add_training():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = """INSERT INTO TRAINING (SESSION, DURATION, DISTANCE_COVERED, SPRINT_COUNT, SHOTS_ON_TARGET, PASSING_ACCURACY)
+             VALUES (%s, %s, %s, %s, %s, %s)"""
+    cursor.execute(sql, (data['SESSION'], data['DURATION'], data['DISTANCE_COVERED'], data['SPRINT_COUNT'], data['SHOTS_ON_TARGET'], data['PASSING_ACCURACY']))
+    db.commit()
+    return jsonify({"message": "Training added successfully", "TRAINING_ID": cursor.lastrowid})
+
+
 @training_bp.route('/trainings', methods=['GET'])
 def get_trainings():
     db = get_db()

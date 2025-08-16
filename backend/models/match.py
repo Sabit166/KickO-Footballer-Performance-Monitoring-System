@@ -3,6 +3,18 @@ from db import get_db
 
 match_bp = Blueprint('match', __name__)
 
+
+# CREATE a new match
+@match_bp.route('/matches', methods=['POST'])
+def add_match():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO MATCH (TEAM_ONE, TEAM_TWO, WINNING_TEAM, STADIUM) VALUES (%s, %s, %s, %s)"
+    cursor.execute(sql, (data['TEAM_ONE'], data['TEAM_TWO'], data['WINNING_TEAM'], data['STADIUM']))
+    db.commit()
+    return jsonify({"message": "Match added successfully", "MATCH_ID": cursor.lastrowid})
+
 @match_bp.route('/matches', methods=['GET'])
 def get_matches():
     db = get_db()

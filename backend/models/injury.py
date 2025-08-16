@@ -3,6 +3,18 @@ from db import get_db
 
 injury_bp = Blueprint('injury', __name__)
 
+# CREATE a new injury case
+@injury_bp.route('/injuries', methods=['POST'])
+def add_injury():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO INJURY (TYPE, SEVERITY, RESTING_PERIOD) VALUES (%s, %s, %s)"
+    cursor.execute(sql, (data['TYPE'], data['SEVERITY'], data['RESTING_PERIOD']))
+    db.commit()
+    return jsonify({"message": "Injury added successfully", "INJURY_CASE_ID": cursor.lastrowid})
+
+
 @injury_bp.route('/injuries', methods=['GET'])
 def get_injuries():
     db = get_db()

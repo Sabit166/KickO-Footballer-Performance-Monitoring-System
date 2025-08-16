@@ -6,6 +6,19 @@ from db import get_db
 
 player_bp = Blueprint('player', __name__)
 
+
+# CREATE a new player
+@player_bp.route('/players', methods=['POST'])
+def add_player():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO PLAYER (PLAYER_ID, PLAYER_NAME, HEIGHT, CONTRACT, WEIGHT) VALUES (%s, %s, %s, %s, %s)"
+    cursor.execute(sql, (data['PLAYER_ID'], data['PLAYER_NAME'], data['HEIGHT'], data['CONTRACT'], data['WEIGHT']))
+    db.commit()
+    return jsonify({"message": "Player added successfully", "PLAYER_ID": cursor.lastrowid})
+
+
 # READ all players
 @player_bp.route('/players', methods=['GET'])
 def get_players():

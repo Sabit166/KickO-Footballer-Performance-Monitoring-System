@@ -3,6 +3,21 @@ from db import get_db
 
 player_performance_bp = Blueprint('player_performance', __name__)
 
+# POST endpoint to insert a new player performance record
+@player_performance_bp.route('/player_performance', methods=['POST'])
+def add_player_performance():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    # Adjust attributes as per your PLAYER_PERFORMANCE table
+    sql = """
+        INSERT INTO PLAYER_PERFORMANCE (PLAYER_ID, STATS_ID)
+        VALUES (%s, %s)
+    """
+    cursor.execute(sql, (data['PLAYER_ID'], data['STATS_ID']))
+    db.commit()
+    return jsonify({"message": "Player performance added"}), 201
+
 @player_performance_bp.route('/player_performance', methods=['GET'])
 def get_stats():
     db = get_db()

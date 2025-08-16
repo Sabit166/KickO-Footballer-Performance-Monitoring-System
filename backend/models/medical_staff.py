@@ -3,6 +3,18 @@ from db import get_db
 
 medical_staff_bp = Blueprint('medical_staff', __name__)
 
+
+# CREATE a new medical staff
+@medical_staff_bp.route('/medical_staffs', methods=['POST'])
+def add_staff():
+    data = request.json
+    db = get_db()
+    cursor = db.cursor()
+    sql = "INSERT INTO MEDICAL_STAFFS (STAFF_NAME, SPECIALIZATION) VALUES (%s, %s)"
+    cursor.execute(sql, (data['STAFF_NAME'], data['SPECIALIZATION']))
+    db.commit()
+    return jsonify({"message": "Medical staff added successfully", "STAFF_ID": cursor.lastrowid})
+
 @medical_staff_bp.route('/medical_staffs', methods=['GET'])
 def get_staffs():
     db = get_db()
