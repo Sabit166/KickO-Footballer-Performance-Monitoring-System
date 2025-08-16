@@ -6,6 +6,7 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { useNavigate } from 'react-router-dom';
+import SignUp from './SignUp';
 
 
 
@@ -57,6 +58,7 @@ export default function ScrollPage() {
     const handleClick = () => {
         navigate('/login');
     }
+    const [open, setOpen] = useState(false);
     return (
         <Box
             sx={{
@@ -102,10 +104,16 @@ export default function ScrollPage() {
                         <Typography variant="h6" sx={{ flexGrow: 1 }}>
                             Kicko
                         </Typography>
-                        <Button color="inherit" href="/">Sign Up</Button>
-                        <Button color="inherit" href="/login" onClick={handleClick}>Login</Button>
+                        <Button
+                            color="inherit"
+                            onClick={() => setOpen(true)}
+                        >
+                            Sign Up
+                        </Button>
+                        <Button color="inherit" onClick={handleClick}>Login</Button>
                     </Toolbar>
                 </AppBar>
+                <SignUp open={open} onClose={() => setOpen(false)} />
                 <Box
                     sx={{
                         display: 'flex',
