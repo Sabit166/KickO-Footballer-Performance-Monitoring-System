@@ -14,6 +14,7 @@ from .models.match import match_bp
 from .models.medical_staff import medical_staff_bp
 from .models.player_performance import player_performance_bp
 from .models.player_stats import player_stats_bp
+from .models.team_performance import team_performance_bp
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
@@ -28,6 +29,7 @@ app.register_blueprint(match_bp)
 app.register_blueprint(medical_staff_bp)
 app.register_blueprint(player_stats_bp)
 app.register_blueprint(player_performance_bp)
+app.register_blueprint(team_performance_bp)
 
 # Close DB connection after request
 @app.teardown_appcontext
