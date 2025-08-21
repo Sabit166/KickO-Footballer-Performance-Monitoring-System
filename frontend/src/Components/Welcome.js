@@ -1,9 +1,10 @@
 import React from 'react'
 
 function Welcome() {
+
     return (
         <div>
-            <h1>Welcome to Kicko from labiba   </h1>
+            <h1>Welcome to KickO</h1>
             <pre>{`
                 ⠀⠀⠀⣀⡤⠤⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠒⠒⠦⣄⡀⠀⠀⠀⠀
                 ⠀⢠⠞⠉⠠⡄⠀⢿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡇⠀⡤⠆⠀⠹⣄⠀⠀⠀
