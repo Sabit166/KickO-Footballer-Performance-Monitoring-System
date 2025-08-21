@@ -28,13 +28,11 @@ function TeamPage() {
   // Fetch players from Flask backend
   const fetchTeam = async () => {
     try {
-      const res = await fetch("http://localhost:5000/teams"); // Flask GET route
-      if (!res.ok) throw new Error("Failed to fetch team");
-      const data = await res.json();
-      console.log(data);
-      setTeam(data); // ✅ Fixed naming
+      const response = await axios.get("http://localhost:5001/api/team");
+      const data = response.data;
+      setTeams(data);
     } catch (error) {
-      console.error("Error fetching team:", error);
+      setError("Failed to fetch team. Please try again.");
     }
   };
 
@@ -59,7 +57,7 @@ function TeamPage() {
       setNewTeam({ TEAM_ID: "", TEAM_NAME: "" });
       fetchTeam(); // Refresh list after adding
     } catch (error) {
-      console.error("Error adding team:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 
@@ -71,7 +69,7 @@ function TeamPage() {
       if (!res.ok) throw new Error("Failed to delete team");
       fetchTeam(); // Refresh list after deleting
     } catch (error) {
-      console.error("Error deleting team:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 

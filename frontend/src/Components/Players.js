@@ -32,13 +32,11 @@ function PlayersPage() {
   // Fetch players from Flask backend
   const fetchPlayers = async () => {
     try {
-      const res = await fetch("http://localhost:5000/players"); // Flask GET route
-      if (!res.ok) throw new Error("Failed to fetch players");
-      const data = await res.json();
-      console.log(data);
+      const response = await axios.get("http://localhost:5001/api/players");
+      const data = response.data;
       setPlayers(data);
     } catch (error) {
-      console.error("Error fetching players:", error);
+      setError("Failed to fetch players. Please try again.");
     }
   };
 
@@ -63,10 +61,10 @@ function PlayersPage() {
         }),
       });
       if (!res.ok) throw new Error("Failed to add player");
-      setNewPlayer({PLAYER_ID: "", PLAYER_NAME: "", HEIGHT: "", WEIGHT: "", CONTRACT: "" });
+      setNewPlayer({ PLAYER_ID: "", PLAYER_NAME: "", HEIGHT: "", WEIGHT: "", CONTRACT: "" });
       fetchPlayers(); // Refresh list after adding
     } catch (error) {
-      console.error("Error adding player:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 
@@ -78,7 +76,7 @@ function PlayersPage() {
       if (!res.ok) throw new Error("Failed to delete player");
       fetchPlayers(); // Refresh list after deleting
     } catch (error) {
-      console.error("Error deleting player:", error);
+      // Handle error silently or show user-friendly message
     }
   };
 
