@@ -19,13 +19,11 @@ function PlayersPerformancePage() {
   // Fetch players from Flask backend
   const fetchPlayersPerformance = async () => {
     try {
-      const res = await fetch("http://localhost:5000/player_performance"); // Flask GET route
-      if (!res.ok) throw new Error("Failed to fetch players performance");
-      const data = await res.json();
-      console.log(data);
-      setPlayer_performance(data);
+      const response = await axios.get("http://localhost:5001/api/playerperformance");
+      const data = response.data;
+      setPlayers(data);
     } catch (error) {
-      console.error("Error fetching players performance:", error);
+      setError("Failed to fetch players performance. Please try again.");
     }
   };
 
