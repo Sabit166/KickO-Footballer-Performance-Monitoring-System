@@ -25,7 +25,7 @@ def get_stats():
             JOIN PLAYER_PERFORMANCE PP ON P.PLAYER_ID = PP.PLAYER_ID
             JOIN PLAYER_STATS PS ON PP.STATS_ID = PS.STATS_ID
         GROUP BY T.TEAM_ID, T.TEAM_NAME
-        ORDER BY TOTAL_GOALS DESC;
+        ORDER BY T.TEAM_ID ASC;
     """)
     return jsonify(cursor.fetchall())
 
