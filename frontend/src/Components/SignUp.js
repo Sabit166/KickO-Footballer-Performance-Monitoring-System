@@ -26,7 +26,7 @@ export default function SignUp({ open, onClose }) {
     });
 
     const [signupSuccess, setSignupSuccess] = useState(false);
-    const [teamCode, setTeamCode] = useState('');
+    const [teamId, setTeamId] = useState('');
     const [error, setError] = useState('');
 
     const clearFormData = () => {
@@ -38,7 +38,7 @@ export default function SignUp({ open, onClose }) {
             confirmPassword: ''
         });
         setSignupSuccess(false);
-        setTeamCode('');
+        setTeamId('');
         setError('');
     };
 
@@ -72,7 +72,7 @@ export default function SignUp({ open, onClose }) {
             };
             const response = await axios.post("http://localhost:5001/api/signup", signupData);
             setSignupSuccess(true);
-            setTeamCode(response.data.teamCode);
+            setTeamId(response.data.teamId);
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
@@ -175,7 +175,7 @@ export default function SignUp({ open, onClose }) {
                             }}
                         >
                             <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 1 }}>
-                                Your Individual Admin Code:
+                                Your Individual Admin ID:
                             </Typography>
                             <Typography
                                 variant="h5"
@@ -186,10 +186,10 @@ export default function SignUp({ open, onClose }) {
                                     fontFamily: 'monospace'
                                 }}
                             >
-                                {teamCode}
+                                {teamId}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'block', mt: 1 }}>
-                                Save this code! You'll need it to manage your team.
+                                Save this ID! You'll need it to manage your team.
                             </Typography>
                         </Box>
                     </Box>

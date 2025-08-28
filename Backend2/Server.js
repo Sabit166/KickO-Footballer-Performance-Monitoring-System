@@ -12,14 +12,14 @@ const db = await mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "tamim443",
-    database: "test"
+    database: "p_dbms"
 });
 
 try {
     await db.execute(
         `CREATE TABLE IF NOT EXISTS team (
-            team_code VARCHAR(10) PRIMARY KEY,
-            team_name VARCHAR(100) NOT NULL
+            TEAM_ID VARCHAR(20) PRIMARY KEY,
+            TEAM_NAME VARCHAR(100) NOT NULL
         )`
     );
     console.log("Team table created or already exists.");
@@ -32,12 +32,12 @@ try {
     await db.execute(
         `CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            team_code VARCHAR(10) NOT NULL,
+            TEAM_ID VARCHAR(20) NOT NULL,
             u_name VARCHAR(100) NOT NULL,
             role VARCHAR(100),
             email VARCHAR(100) NOT NULL UNIQUE,
             password_hash VARCHAR(255) NOT NULL,
-            FOREIGN KEY (team_code) REFERENCES team(team_code) ON DELETE CASCADE
+            FOREIGN KEY (TEAM_ID) REFERENCES team(TEAM_ID) ON DELETE CASCADE
         )`
     );
     console.log("Users table created or already exists.");
@@ -52,10 +52,10 @@ app.post("/api/login", async (req, res) => {
 
     try {
         if (!email || !password || !role || !teamcode) {
-            return res.status(400).json({ error: "Email, password, role, and team code are required" });
+            return res.status(400).json({ error: "Email, password, role, and team ID are required" });
         }
         const [users] = await db.execute(
-            "SELECT * FROM users WHERE team_code = ? AND email = ? AND role = ?",
+            "SELECT * FROM users WHERE TEAM_ID = ? AND email = ? AND role = ?",
             [teamcode, email, role]
         );
 
@@ -78,7 +78,7 @@ app.post("/api/login", async (req, res) => {
                 name: user.u_name,
                 email: user.email,
                 role: user.role,
-                teamCode: user.team_code
+                teamId: user.TEAM_ID
             }
         });
     } catch (err) {
@@ -108,31 +108,45 @@ app.post("/api/signup", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const [rows] = await db.execute(
-            "SELECT team_code FROM team ORDER BY team_code DESC LIMIT 1"
+            "SELECT TEAM_ID FROM team ORDER BY TEAM_ID DESC LIMIT 1"
         );
 
         let nextCode = "tm01";
         if (rows.length > 0) {
-            const lastCode = rows[0].team_code;
-            const num = parseInt(lastCode.slice(2)) + 1;
-            nextCode = "tm" + String(num).padStart(2, "0");
+            const lastCode = rows[0].TEAM_ID;
+
+            // Check if the last code follows "tm##" format
+            if (lastCode && lastCode.startsWith("tm") && lastCode.length >= 4) {
+                const numPart = lastCode.slice(2); // Extract number part after "tm"
+                const num = parseInt(numPart);
+                if (!isNaN(num)) {
+                    nextCode = "tm" + String(num + 1).padStart(2, "0");
+                }
+            } else {
+                // If existing data is numeric or different format, start fresh with tm01
+                // Or convert existing numeric to tm format
+                if (!isNaN(parseInt(lastCode))) {
+                    const num = parseInt(lastCode);
+                    nextCode = "tm" + String(num + 1).padStart(2, "0");
+                }
+            }
         }
 
         // Always insert team (use team name if provided, otherwise use a default name)
         const finalTeamName = teamName || `Team ${nextCode}`;
         await db.execute(
-            "INSERT INTO team (team_code, team_name) VALUES (?, ?)",
+            "INSERT INTO team (TEAM_ID, TEAM_NAME) VALUES (?, ?)",
             [nextCode, finalTeamName]
         );
 
         await db.execute(
-            "INSERT INTO users (team_code, u_name, role, email, password_hash) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO users (TEAM_ID, u_name, role, email, password_hash) VALUES (?, ?, ?, ?, ?)",
             [nextCode, name, role || 'admin', email, hashedPassword]
         );
 
         res.status(201).json({
             message: "User registered successfully!",
-            teamCode: nextCode
+            teamId: nextCode
         });
     } catch (err) {
         console.error("Signup error details:", err);

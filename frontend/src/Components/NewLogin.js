@@ -32,7 +32,7 @@ function NewLogin() {
                 email,
                 password,
                 role,
-                teamcode: teamid  // Fix: backend expects 'teamcode'
+                teamcode: teamid  // Fix: backend expects 'teamcode' but now uses TEAM_ID
             });
 
             const userData = response.data.user;
@@ -40,7 +40,7 @@ function NewLogin() {
             // Ensure all values are strings for the success message
             const userName = userData.name || 'User';
             const userRole = userData.role || 'Unknown';
-            const userTeam = userData.teamCode || 'Unknown';
+            const userTeam = userData.teamId || 'Unknown';
 
             setSuccess(`Welcome back, ${userName}! Role: ${userRole}, Team: ${userTeam}`);
 
