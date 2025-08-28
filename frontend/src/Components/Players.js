@@ -28,7 +28,7 @@ import axios from "axios";
 function PlayersPage() {
   const [players, setPlayers] = useState([]);
   const [newPlayer, setNewPlayer] = useState({
-    ID: "",
+    PLAYER_ID: "",
     PLAYER_NAME: "",
     HEIGHT: "",
     WEIGHT: "",
@@ -42,7 +42,7 @@ function PlayersPage() {
   // Fetch players from Flask backend
   const fetchPlayers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/players");
+      const response = await axios.get("http://localhost:5000/players");
       const data = response.data;
       setPlayers(data);
     } catch (error) {
@@ -63,7 +63,7 @@ function PlayersPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ID: newPlayer.PLAYER_ID,
+          PLAYER_ID: newPlayer.PLAYER_ID,
           PLAYER_NAME: newPlayer.PLAYER_NAME,
           HEIGHT: newPlayer.HEIGHT,
           WEIGHT: newPlayer.WEIGHT,

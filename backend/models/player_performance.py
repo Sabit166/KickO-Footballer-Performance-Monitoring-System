@@ -23,9 +23,12 @@ def get_stats():
     db = get_db()
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
+        CREATE VIEW PLAYER_PERFORMANCE AS
         SELECT pr.PLAYER_ID, PLAYER_NAME, GOALS, ASSISTS, FOULS, YELLOW_CARDS, RED_CARDS, MINUTES_PLAYED
-        FROM player_performance pr, player p, player_stats ps
+        FROM player_STATS pr, player p, stats ps
         WHERE pr.PLAYER_ID=p.PLAYER_ID AND pr.STATS_ID=ps.STATS_ID
+        
+        SELECT * FROM PLAYER_PERFORMANCE
     """)
     return jsonify(cursor.fetchall())
 
