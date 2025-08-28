@@ -70,7 +70,7 @@ export default function SignUp({ open, onClose }) {
                 ...formData,
                 role: 'admin'  // Add default role as admin
             };
-            const response = await axios.post("http://localhost:5001/api/signup", signupData);
+            const response = await axios.post("http://localhost:5000/api/signup", signupData);
             setSignupSuccess(true);
             setTeamCode(response.data.teamCode);
         } catch (error) {

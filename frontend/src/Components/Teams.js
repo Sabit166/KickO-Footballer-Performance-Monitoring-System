@@ -28,7 +28,7 @@ function TeamPage() {
   // Fetch players from Flask backend
   const fetchTeam = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/team");
+      const response = await axios.get("http://localhost:5000/api/team");
       const data = response.data;
       setTeams(data);
     } catch (error) {

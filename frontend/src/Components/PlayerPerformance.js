@@ -19,7 +19,7 @@ function PlayersPerformancePage() {
   // Fetch players from Flask backend
   const fetchPlayersPerformance = async () => {
     try {
-      const response = await axios.get("http://localhost:5001/api/playerperformance");
+      const response = await axios.get("http://localhost:5000/api/playerperformance");
       const data = response.data;
       setPlayers(data);
     } catch (error) {
