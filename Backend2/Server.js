@@ -118,13 +118,13 @@ app.post("/api/signup", async (req, res) => {
             nextCode = "tm" + String(num).padStart(2, "0");
         }
 
-        // Insert team only if teamName is provided
-        if (teamName) {
-            await db.execute(
-                "INSERT INTO team (team_code, team_name) VALUES (?, ?)",
-                [nextCode, teamName]
-            );
-        }
+        // Always insert team (use team name if provided, otherwise use a default name)
+        const finalTeamName = teamName || `Team ${nextCode}`;
+        await db.execute(
+            "INSERT INTO team (team_code, team_name) VALUES (?, ?)",
+            [nextCode, finalTeamName]
+        );
+
         await db.execute(
             "INSERT INTO users (team_code, u_name, role, email, password_hash) VALUES (?, ?, ?, ?, ?)",
             [nextCode, name, role || 'admin', email, hashedPassword]
@@ -141,4 +141,4 @@ app.post("/api/signup", async (req, res) => {
     }
 });
 
-app.listen(5000, () => console.log("Server running on http://localhost:5000"));
+app.listen(5001, () => console.log("Server running on http://localhost:5001"));

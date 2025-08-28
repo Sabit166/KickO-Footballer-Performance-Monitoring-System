@@ -73,21 +73,21 @@ export default function Adminpage() {
                 <Box sx={{ overflow: "auto" }}>
                     <List>
                         {[
-                            { text: "Dashboard", path: "/", icon: '/football.png' },
+                            { text: "Dashboard", path: ".", icon: '/football.png' },
                             {
-                                text: "Manage Team", path: "/addplayer", icon: '/logo192.png', submenu: {
+                                text: "Manage Team", path: "addplayer", icon: '/logo192.png', submenu: {
                                     items: [
-                                        { text: "Player", path: "/addplayer", icon: '/logo192.png' },
-                                        { text: "Coach", path: "/addteam", icon: '/logo192.png' },
-                                        { text: "Physician", path: "/addmanager", icon: '/logo192.png' }
+                                        { text: "Player", path: "addplayer", icon: '/logo192.png' },
+                                        { text: "Coach", path: "addteam", icon: '/logo192.png' },
+                                        { text: "Physician", path: "addmanager", icon: '/logo192.png' }
                                     ]
                                 }
                             },
                             {
-                                text: "Report", path: "/report", icon: '/logo192.png', submenu: {
+                                text: "Report", path: "report", icon: '/logo192.png', submenu: {
                                     items: [
-                                        { text: "Player Report", path: "/playerreport", icon: '/logo192.png' },
-                                        { text: "Team Report", path: "/teamreport", icon: '/logo192.png' }
+                                        { text: "Player Report", path: "playerreport", icon: '/logo192.png' },
+                                        { text: "Team Report", path: "teamreport", icon: '/logo192.png' }
                                     ]
                                 }
                             }

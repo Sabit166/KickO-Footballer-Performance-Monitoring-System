@@ -5,6 +5,7 @@ import HomePage from './Components/HomePage';
 import Login from './Components/NewLogin';
 import Emne from './Components/Welcome';
 import Adminpage from './Components/Adminpage';
+import Players from './Components/Players';
 function App() {
 
 
@@ -14,8 +15,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/emne" element={<Emne />} />
-        <Route path="/adminpage" element={<Adminpage/>}>
+        <Route path="/adminpage" element={<Adminpage />}>
           <Route index element={<Emne />} />
+          <Route path="addplayer" element={<Players />} />
         </Route>
       </Routes>
     </Router>
