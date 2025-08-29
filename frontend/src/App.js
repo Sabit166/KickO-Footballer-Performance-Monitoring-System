@@ -6,6 +6,7 @@ import Login from './Components/NewLogin';
 import Emne from './Components/Welcome';
 import Adminpage from './Components/Adminpage';
 import Players from './Components/Players';
+
 function App() {
 
 

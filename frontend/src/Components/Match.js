@@ -5,14 +5,8 @@ import {
   Typography,
   Button,
   TextField,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   IconButton,
+  Paper
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -28,10 +22,37 @@ function MatchPage() {
     WINNING_TEAM: "",
   });
 
+  // Helper to render a team name with a colored spot
+  const renderTeam = (teamName, match) => {
+    if (!teamName) return <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Unknown</Typography>;
+  const winValue = (match.WINNING_TEAM || '').trim();
+  const isDraw = /^(draw|tie|d)$/i.test(winValue);
+  const isWinner = !isDraw && winValue && winValue === teamName;
+  const otherTeam = teamName === match.TEAM_ONE ? match.TEAM_TWO : match.TEAM_ONE;
+  const losingCandidate = !isDraw && winValue && (otherTeam && winValue === otherTeam);
+  const isLoser = !isWinner && losingCandidate; // mark loser only if not draw
+  const color = isDraw ? '#ffeb3b' : (isWinner ? '#2196f3' : (isLoser ? '#f44336' : 'transparent'));
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Box
+          sx={{
+            width: 12,
+            height: 12,
+            borderRadius: '50%',
+            bgcolor: color,
+            border: color === 'transparent' ? '1px solid rgba(255,255,255,0.3)' : 'none'
+          }}
+      title={isDraw ? 'Draw' : (isWinner ? 'Winner' : (isLoser ? 'Loser' : 'No result yet'))}
+        />
+        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{teamName}</Typography>
+      </Box>
+    );
+  };
+
   // Fetch matches from Flask backend
   const fetchMatches = async () => {
     try {
-      const res = await fetch("http://localhost:5000/match"); // Flask GET route
+      const res = await fetch("http://localhost:5000/matches"); // Flask GET route
       if (!res.ok) throw new Error("Failed to fetch matches");
       const data = await res.json();
       setMatches(data);
@@ -49,7 +70,7 @@ function MatchPage() {
       return alert("Match Identification Number required!");
     }
     try {
-      const res = await fetch("http://localhost:5000/match", {
+      const res = await fetch("http://localhost:5000/matches", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -70,7 +91,7 @@ function MatchPage() {
 
   const handleDeleteMatch = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/match/${id}`, {
+      const res = await fetch(`http://localhost:5000/matches/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete match");
@@ -175,37 +196,57 @@ function MatchPage() {
             </Button>
           </Box>
 
-          {/* Matches Table */}
-          <TableContainer component={Paper} sx={{ bgcolor: "rgba(255,255,255,0.9)" }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>MATCH ID</strong></TableCell>
-                  <TableCell><strong>Team One</strong></TableCell>
-                  <TableCell><strong>Team Two</strong></TableCell>
-                  <TableCell><strong>Stadium</strong></TableCell>
-                  <TableCell><strong>Winning Team</strong></TableCell>
-                  <TableCell align="center"><strong>Actions</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {matches.map((match) => (
-                  <TableRow key={match.MATCH_ID}>
-                    <TableCell>{match.MATCH_ID}</TableCell>
-                    <TableCell>{match.TEAM_ONE}</TableCell>
-                    <TableCell>{match.TEAM_TWO}</TableCell>
-                    <TableCell>{match.STADIUM}</TableCell>
-                    <TableCell>{match.WINNING_TEAM}</TableCell>
-                    <TableCell align="center">
-                      <IconButton color="error" onClick={() => handleDeleteMatch(match.MATCH_ID)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+          {/* Scoreboard Style List (Sequential) */}
+          <Box sx={{ mt: 2 }}>
+            {matches.map((match) => (
+              <Paper
+                key={match.MATCH_ID}
+                elevation={4}
+                sx={{
+                  mb: 2,
+                  px: 4,
+                  py: 3,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                  bgcolor: 'rgba(0,0,0,0.55)',
+                  color: '#fff',
+                  borderRadius: 1,
+                  minHeight: 140,
+                  position: 'relative'
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 4, width: '100%', position: 'relative' }}>
+                  {renderTeam(match.TEAM_ONE || 'Team One', match)}
+                  <Typography variant="h5" sx={{ opacity: 0.9, fontWeight: 'bold' }}>vs</Typography>
+                  {renderTeam(match.TEAM_TWO || 'Team Two', match)}
+                  <IconButton size="small" color="error" onClick={() => handleDeleteMatch(match.MATCH_ID)} sx={{ position: 'absolute', top: 4, right: 4 }}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 'bold',
+                    letterSpacing: 0.5,
+                    textAlign: 'center',
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    p: 1,
+                    borderRadius: 0.5,
+                    fontStyle: match.STADIUM ? 'normal' : 'italic',
+                    opacity: 0.95
+                  }}
+                >
+                  {match.STADIUM ? `Stadium: ${match.STADIUM}` : 'Stadium not set'}
+                </Typography>
+              </Paper>
+            ))}
+            {matches.length === 0 && (
+              <Typography variant="body1" sx={{ color: '#fff', opacity: 0.8 }}>
+                No matches yet. Add one above.
+              </Typography>
+            )}
+          </Box>
         </Box>
       </Container>
     </Box>
