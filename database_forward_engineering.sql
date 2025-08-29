@@ -447,14 +447,14 @@ VALUES (
         'Black Wolves',
         'Red Lions',
         'Olympic Park',
-        'Black Wolves'
+        'Red Lions'
     ),
     (
         504,
         'Blue Tigers',
         'Green Eagles',
         'United Ground',
-        'Blue Tigers'
+        'Green Eagles'
     ),
     (
         505,
@@ -738,7 +738,7 @@ INSERT INTO
 VALUES (601, 2, 1, 3, 1, 0, 90),
     (602, 1, 2, 2, 0, 0, 85),
     (603, 0, 0, 5, 2, 1, 45),
-    (604, 3, 0, 1, 0, 0, 90),
+    (604, 0, 0, 1, 0, 0, 90),
     (605, 0, 3, 0, 0, 0, 90),
     (606, 1, 1, 4, 1, 0, 78),
     (607, 0, 0, 2, 0, 0, 90),

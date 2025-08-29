@@ -1,0 +1,9 @@
+SELECT t.TEAM_NAME, SUM(s.GOALS) AS TOTAL_GOALS
+FROM stat_match ms
+JOIN stats s ON ms.STATS_ID = s.STATS_ID
+JOIN player_stats ps ON ms.STATS_ID = ps.STATS_ID
+JOIN player p ON ps.PLAYER_ID = p.PLAYER_ID
+JOIN player_team pt ON p.PLAYER_ID = pt.PLAYER_ID
+JOIN team t ON pt.TEAM_ID = t.TEAM_ID
+WHERE ms.MATCH_ID = '501'
+GROUP BY t.TEAM_NAME;

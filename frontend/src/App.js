@@ -6,6 +6,7 @@ import Login from './Components/NewLogin';
 import Emne from './Components/Welcome';
 import Adminpage from './Components/Adminpage';
 import Players from './Components/Players';
+import MatchPage from './Components/Match';
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/adminpage" element={<Adminpage />}>
           <Route index element={<Emne />} />
           <Route path="addplayer" element={<Players />} />
+          <Route path="match" element={<MatchPage />} />
         </Route>
       </Routes>
     </Router>

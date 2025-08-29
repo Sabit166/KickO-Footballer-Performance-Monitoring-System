@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
-
 const drawerWidth = 240;
 
 export default function Adminpage() {
@@ -79,7 +78,8 @@ export default function Adminpage() {
                                     items: [
                                         { text: "Player", path: "addplayer", icon: '/logo192.png' },
                                         { text: "Coach", path: "addteam", icon: '/logo192.png' },
-                                        { text: "Physician", path: "addmanager", icon: '/logo192.png' }
+                                        { text: "Physician", path: "addmanager", icon: '/logo192.png' },
+                                        { text: "Match", path: "match", icon: '/logo192.png' }  // New submenu item
                                     ]
                                 }
                             },
