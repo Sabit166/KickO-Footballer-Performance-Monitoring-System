@@ -7,6 +7,7 @@ import Emne from './Components/Welcome';
 import Adminpage from './Components/Adminpage';
 import Players from './Components/Players';
 import MatchPage from './Components/Match';
+import TeamPerformancePage from './Components/TeamPerformance';
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
           <Route index element={<Emne />} />
           <Route path="addplayer" element={<Players />} />
           <Route path="match" element={<MatchPage />} />
+          <Route path="teamperformance" element={<TeamPerformancePage />} />
         </Route>
       </Routes>
     </Router>

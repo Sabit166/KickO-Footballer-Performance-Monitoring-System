@@ -3,29 +3,34 @@ from db import get_db
 
 team_performance_bp = Blueprint('team_performance', __name__)
 
-
-
-@team_performance_bp.route('/team_performance', methods=['GET'])
-def get_stats():
+@team_performance_bp.route('/team_performance/<int:match_id>', methods=['GET'])
+def get_stats(match_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
     cursor.execute("""
         SELECT 
-            T.TEAM_ID,
-            T.TEAM_NAME,
-            SUM(PS.GOALS) AS TOTAL_GOALS,
-            SUM(PS.ASSISTS) AS TOTAL_ASSISTS,
-            SUM(PS.FOULS) AS TOTAL_FOULS,
-            SUM(PS.YELLOW_CARDS) AS TOTAL_YELLOW_CARDS,
-            SUM(PS.RED_CARDS) AS TOTAL_RED_CARDS,
-            SUM(PS.MINUTES_PLAYED) AS TOTAL_MINUTES_PLAYED
-        FROM TEAM T
-            JOIN PLAYER_TEAM PT ON T.TEAM_ID = PT.TEAM_ID
-            JOIN PLAYER P ON PT.PLAYER_ID = P.PLAYER_ID
-            JOIN PLAYER_PERFORMANCE PP ON P.PLAYER_ID = PP.PLAYER_ID
-            JOIN PLAYER_STATS PS ON PP.STATS_ID = PS.STATS_ID
-        GROUP BY T.TEAM_ID, T.TEAM_NAME
-        ORDER BY T.TEAM_ID ASC;
-    """)
+            t.TEAM_NAME,
+            SUM(s.GOALS) AS TOTAL_GOALS,
+            SUM(s.ASSISTS) AS TOTAL_ASSISTS,
+            SUM(s.FOULS) AS TOTAL_FOULS,
+            SUM(s.YELLOW_CARDS) AS TOTAL_YELLOW_CARDS,
+            SUM(s.RED_CARDS) AS TOTAL_RED_CARDS,
+            SUM(s.MINUTES_PLAYED) AS TOTAL_MINUTES_PLAYED
+        FROM team_match tm
+        JOIN team t 
+            ON tm.TEAM_ID = t.TEAM_ID
+        JOIN player_team pt 
+            ON t.TEAM_ID = pt.TEAM_ID
+        JOIN player p 
+            ON pt.PLAYER_ID = p.PLAYER_ID
+        JOIN player_stats ps 
+            ON p.PLAYER_ID = ps.PLAYER_ID
+        JOIN stat_match sm 
+            ON ps.STATS_ID = sm.STATS_ID
+        JOIN stats s 
+            ON ps.STATS_ID = s.STATS_ID
+        WHERE tm.MATCH_ID = %s
+          AND sm.MATCH_ID = %s
+        GROUP BY t.TEAM_NAME;
+    """, (match_id, match_id))
     return jsonify(cursor.fetchall())
-
