@@ -15,7 +15,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 
 export default function SignUp({ open, onClose }) {
-    console.log('SignUp component rendered with open:', open);
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -27,7 +26,7 @@ export default function SignUp({ open, onClose }) {
     });
 
     const [signupSuccess, setSignupSuccess] = useState(false);
-    const [teamCode, setTeamCode] = useState('');
+    const [teamId, setTeamId] = useState('');
     const [error, setError] = useState('');
 
     const clearFormData = () => {
@@ -39,7 +38,7 @@ export default function SignUp({ open, onClose }) {
             confirmPassword: ''
         });
         setSignupSuccess(false);
-        setTeamCode('');
+        setTeamId('');
         setError('');
     };
 
@@ -67,16 +66,14 @@ export default function SignUp({ open, onClose }) {
 
         // Send data to backend
         try {
-            console.log("Sending signup data:", formData);
-            const response = await axios.post("http://localhost:5001/api/signup", formData);
-            console.log("Signup response:", response.data);
+            const signupData = {
+                ...formData,
+                role: 'admin'  // Add default role as admin
+            };
+            const response = await axios.post("http://localhost:5001/api/signup", signupData);
             setSignupSuccess(true);
-            setTeamCode(response.data.teamCode);
+            setTeamId(response.data.teamId);
         } catch (error) {
-            console.error("Signup error details:", error);
-            console.error("Error response:", error.response);
-            console.error("Error message:", error.message);
-
             if (error.response && error.response.data && error.response.data.error) {
                 setError(error.response.data.error);
             } else if (error.message) {
@@ -86,7 +83,6 @@ export default function SignUp({ open, onClose }) {
             }
         }
         // Add your sign-up logic here
-        console.log('Sign up data:', formData);
     };
 
     const handleClose = () => {
@@ -179,7 +175,7 @@ export default function SignUp({ open, onClose }) {
                             }}
                         >
                             <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 1 }}>
-                                Your Team Code:
+                                Your Individual Admin ID:
                             </Typography>
                             <Typography
                                 variant="h5"
@@ -190,10 +186,10 @@ export default function SignUp({ open, onClose }) {
                                     fontFamily: 'monospace'
                                 }}
                             >
-                                {teamCode}
+                                {teamId}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)', display: 'block', mt: 1 }}>
-                                Save this code! You'll need it to manage your team.
+                                Save this ID! You'll need it to manage your team.
                             </Typography>
                         </Box>
                     </Box>

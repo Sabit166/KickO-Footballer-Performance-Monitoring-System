@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Box, Typography, Paper, AppBar, Toolbar, Button, Container } from "@mui/material";
+import { Box, Typography, Paper, AppBar, Toolbar, Button } from "@mui/material";
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
@@ -28,8 +28,9 @@ const Section = ({ children, backgroundColor }) => {
             observer.observe(ref.current);
         }
         return () => {
-            if (ref.current) {
-                observer.unobserve(ref.current);
+            const currentRef = ref.current;
+            if (currentRef) {
+                observer.unobserve(currentRef);
             }
         };
     }, []);

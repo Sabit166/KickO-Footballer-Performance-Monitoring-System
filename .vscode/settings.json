@@ -13,5 +13,6 @@
             "database": "p_dbms",
             "username": "root"
         }
-    ]
+    ],
+    "C_Cpp.errorSquiggles": "enabled"
 }
