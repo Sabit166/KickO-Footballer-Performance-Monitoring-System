@@ -32,7 +32,7 @@ function InjuriesPage() {
   // Fetch injuries from Flask backend
   const fetchInjuries = async () => {
     try {
-      const res = await fetch("http://localhost:5000/injury"); // Flask GET route
+      const res = await fetch("http://localhost:5000/injuries"); // Flask GET route
       if (!res.ok) throw new Error("Failed to fetch injuries");
       const data = await res.json();
       console.log(data);
@@ -114,7 +114,7 @@ function InjuriesPage() {
               textShadow: "2px 2px 8px rgba(0,0,0,0.7)",
             }}
           >
-            Player Management
+            coach
           </Typography>
 
           {/* Add Player Form */}
