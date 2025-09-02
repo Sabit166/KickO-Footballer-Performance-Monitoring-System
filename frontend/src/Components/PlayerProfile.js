@@ -9,9 +9,7 @@ import {
   CardContent,
   Avatar,
   Chip,
-  Grid,
   InputAdornment,
-  Fade,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import PersonIcon from "@mui/icons-material/Person";
@@ -20,13 +18,13 @@ import FitnessCenterIcon from "@mui/icons-material/FitnessCenter";
 import EmailIcon from "@mui/icons-material/Email";
 import DescriptionIcon from "@mui/icons-material/Description";
 
-function PlayerDashboard() {
+function PlayerProfile() {
   const [player, setPlayer] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
 
   // Fetch player from Flask backend
-  const fetchPlayer = async (playerName="Cristiano Ronaldo") => {
+  const fetchPlayer = async (playerName) => {
     setLoading(true);
     try {
       const response = await fetch(`http://localhost:5000/players/search/${playerName}`);
@@ -55,96 +53,101 @@ function PlayerDashboard() {
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        py: 4,
-      }}
-    >
-      <Container maxWidth="xl">
+    <Box sx={{ py: 2 }}>
+      <Container maxWidth="lg">
         {/* Header Section */}
-        <Paper
-          elevation={6}
-          sx={{
-            p: 4,
-            mb: 4,
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            borderRadius: 3,
-          }}
-        >
-          <Typography
-            variant="h3"
-            align="center"
-            sx={{
-              fontWeight: "bold",
-              mb: 2,
-              textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
-            }}
-          >
-            🏈 Player Dashboard
-          </Typography>
-          <Typography
-            variant="h6"
-            align="center"
-            sx={{
-              opacity: 0.9,
-              maxWidth: "600px",
-              mx: "auto",
-            }}
-          >
-            Explore player profiles and statistics in an interactive view
-          </Typography>
-        </Paper>
-
-        {/* Search Section */}
         <Paper
           elevation={3}
           sx={{
             p: 3,
             mb: 4,
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
             borderRadius: 2,
-            background: "rgba(255, 255, 255, 0.95)",
+          }}
+        >
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              fontWeight: "bold",
+              mb: 1,
+              textShadow: "1px 1px 2px rgba(0,0,0,0.3)",
+            }}
+          >
+            🏈 Player Profile
+          </Typography>
+          <Typography
+            variant="body1"
+            align="center"
+            sx={{ opacity: 0.9 }}
+          >
+            Search and view player information
+          </Typography>
+        </Paper>
+
+        {/* Search Section */}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 2,
+            bgcolor: "#1a1a1a",
+            border: "1px solid #333333"
           }}
         >
           <TextField
             fullWidth
-            placeholder="Search players by name or ID..."
+            placeholder="Search players by name..."
             value={searchTerm}
             onChange={handleSearch}
             variant="outlined"
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon color="primary" />
+                  <SearchIcon sx={{ color: "#ffffff" }} />
                 </InputAdornment>
               ),
+              style: { color: "#ffffff" }
             }}
             sx={{
               "& .MuiOutlinedInput-root": {
                 borderRadius: 2,
-                backgroundColor: "white",
+                backgroundColor: "#2a2a2a",
+                "& fieldset": {
+                  borderColor: "#555555",
+                },
+                "&:hover fieldset": {
+                  borderColor: "#777777",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "#667eea",
+                },
+              },
+              "& .MuiInputBase-input::placeholder": {
+                color: "#aaaaaa",
+                opacity: 1,
               },
             }}
           />
         </Paper>
 
-        {/* Players Display */}
+        {/* Player Display */}
         {loading ? (
           <Box display="flex" justifyContent="center" py={4}>
-            <Typography variant="h6">Loading player...</Typography>
+            <Typography variant="h6" color="#ffffff">Loading player...</Typography>
           </Box>
         ) : player ? (
           <Box display="flex" justifyContent="center">
             <Card
-              elevation={6}
+              elevation={4}
               sx={{
                 maxWidth: 500,
                 width: "100%",
-                borderRadius: 3,
-                background: "linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)",
-                boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+                borderRadius: 2,
+                backgroundColor: "#1a1a1a",
+                border: "1px solid #333333",
               }}
             >
               <CardContent sx={{ p: 4 }}>
@@ -152,11 +155,11 @@ function PlayerDashboard() {
                 <Box display="flex" justifyContent="center" mb={3}>
                   <Avatar
                     sx={{
-                      width: 120,
-                      height: 120,
-                      bgcolor: "primary.main",
-                      fontSize: "3rem",
-                      boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+                      width: 100,
+                      height: 100,
+                      bgcolor: "#667eea",
+                      fontSize: "2.5rem",
+                      boxShadow: "0 4px 20px rgba(102, 126, 234, 0.3)",
                     }}
                   >
                     {player.PLAYER_NAME.charAt(0)}
@@ -170,7 +173,7 @@ function PlayerDashboard() {
                   sx={{
                     fontWeight: "bold",
                     mb: 2,
-                    color: "primary.dark",
+                    color: "#ffffff",
                   }}
                 >
                   {player.PLAYER_NAME}
@@ -181,8 +184,13 @@ function PlayerDashboard() {
                   <Chip
                     icon={<PersonIcon />}
                     label={`Player ID: ${player.PLAYER_ID}`}
-                    color="primary"
-                    variant="outlined"
+                    sx={{
+                      bgcolor: "#667eea",
+                      color: "#ffffff",
+                      "& .MuiChip-icon": {
+                        color: "#ffffff"
+                      }
+                    }}
                     size="medium"
                   />
                 </Box>
@@ -195,11 +203,12 @@ function PlayerDashboard() {
                     alignItems="center"
                     mb={2}
                     p={2}
-                    borderRadius={2}
-                    bgcolor="rgba(25, 118, 210, 0.08)"
+                    borderRadius={1}
+                    bgcolor="#2a2a2a"
+                    border="1px solid #333333"
                   >
-                    <HeightIcon color="primary" sx={{ mr: 2, fontSize: 24 }} />
-                    <Typography variant="h6" color="text.primary">
+                    <HeightIcon sx={{ color: "#667eea", mr: 2, fontSize: 24 }} />
+                    <Typography variant="h6" color="#ffffff">
                       Height: {player.HEIGHT} cm
                     </Typography>
                   </Box>
@@ -210,11 +219,12 @@ function PlayerDashboard() {
                     alignItems="center"
                     mb={2}
                     p={2}
-                    borderRadius={2}
-                    bgcolor="rgba(76, 175, 80, 0.08)"
+                    borderRadius={1}
+                    bgcolor="#2a2a2a"
+                    border="1px solid #333333"
                   >
                     <FitnessCenterIcon sx={{ color: "#4caf50", mr: 2, fontSize: 24 }} />
-                    <Typography variant="h6" color="text.primary">
+                    <Typography variant="h6" color="#ffffff">
                       Weight: {player.WEIGHT} kg
                     </Typography>
                   </Box>
@@ -225,11 +235,12 @@ function PlayerDashboard() {
                     alignItems="center"
                     mb={2}
                     p={2}
-                    borderRadius={2}
-                    bgcolor="rgba(255, 152, 0, 0.08)"
+                    borderRadius={1}
+                    bgcolor="#2a2a2a"
+                    border="1px solid #333333"
                   >
                     <EmailIcon sx={{ color: "#ff9800", mr: 2, fontSize: 24 }} />
-                    <Typography variant="h6" color="text.primary">
+                    <Typography variant="h6" color="#ffffff">
                       {player.EMAIL || "No email provided"}
                     </Typography>
                   </Box>
@@ -239,11 +250,12 @@ function PlayerDashboard() {
                     display="flex"
                     alignItems="center"
                     p={2}
-                    borderRadius={2}
-                    bgcolor="rgba(156, 39, 176, 0.08)"
+                    borderRadius={1}
+                    bgcolor="#2a2a2a"
+                    border="1px solid #333333"
                   >
                     <DescriptionIcon sx={{ color: "#9c27b0", mr: 2, fontSize: 24 }} />
-                    <Typography variant="h6" color="text.primary">
+                    <Typography variant="h6" color="#ffffff">
                       {player.CONTRACT || "No contract information"}
                     </Typography>
                   </Box>
@@ -258,13 +270,14 @@ function PlayerDashboard() {
               p: 6,
               textAlign: "center",
               borderRadius: 2,
-              background: "rgba(255, 255, 255, 0.9)",
+              bgcolor: "#1a1a1a",
+              border: "1px solid #333333"
             }}
           >
-            <Typography variant="h6" color="text.secondary" mb={1}>
+            <Typography variant="h6" color="#ffffff" mb={1}>
               No player found
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="#aaaaaa">
               No results for "{searchTerm}"
             </Typography>
           </Paper>
@@ -275,13 +288,14 @@ function PlayerDashboard() {
               p: 6,
               textAlign: "center",
               borderRadius: 2,
-              background: "rgba(255, 255, 255, 0.9)",
+              bgcolor: "#1a1a1a",
+              border: "1px solid #333333"
             }}
           >
-            <Typography variant="h6" color="text.secondary" mb={1}>
+            <Typography variant="h6" color="#ffffff" mb={1}>
               Search for a Player
             </Typography>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="#aaaaaa">
               Enter a player name to view their profile
             </Typography>
           </Paper>
@@ -291,4 +305,4 @@ function PlayerDashboard() {
   );
 }
 
-export default PlayerDashboard;
+export default PlayerProfile;

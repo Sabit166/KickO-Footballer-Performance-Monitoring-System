@@ -9,6 +9,11 @@ import Players from './Components/Players';
 import MatchPage from './Components/Match';
 import TeamPerformancePage from './Components/TeamPerformance';
 import PlayersPerformancePage from './Components/PlayerPerformance';
+import PlayerDashboard from './Components/PlayerDashboard';
+import PlayerLayout from './Components/PlayerLayout';
+import PlayerProfile from './Components/PlayerProfile';
+import Injury from './Components/Injury';
+import TeamProfile from './Components/TeamProfile';
 
 function App() {
 
@@ -25,6 +30,14 @@ function App() {
           <Route path="match" element={<MatchPage />} />
           <Route path="teamperformance" element={<TeamPerformancePage />} />
           <Route path="playerperformance" element={<PlayersPerformancePage />} />
+        </Route>
+        <Route path="/playerdashboard" element={<PlayerLayout />}>
+          <Route index element={<Emne />} />
+          <Route path="profile" element={<PlayerProfile />} />
+          <Route path="performance" element={<PlayersPerformancePage />} />
+          <Route path="injury" element={<Injury />} />
+          <Route path="team" element={<TeamProfile />} />
+          <Route path="match" element={<MatchPage />} />
         </Route>
       </Routes>
     </Router>

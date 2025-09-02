@@ -48,12 +48,13 @@ function NewLogin() {
             localStorage.setItem('user', JSON.stringify(userData));
 
             // Redirect with proper state syntax
-            navigate('/adminpage', {
-                state: {
-                    role: userRole,
-                    teamid: userTeam
-                }
-            }); // Redirect to home page after successful login
+            if (userRole === 'admin') {
+                navigate('/adminpage', { state: { role: userRole, teamid: userTeam } });
+            } else if (userRole === 'player') {
+                navigate('/playerdashboard', { state: { role: userRole, teamid: userTeam } });
+            } else {
+                navigate('/dashboard', { state: { role: userRole, teamid: userTeam } });
+            } // Redirect to home page after successful login
 
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {

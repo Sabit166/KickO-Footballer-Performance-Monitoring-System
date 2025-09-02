@@ -1,20 +1,20 @@
 # Test route to check database connection
-from backend.db import get_db
+from db import get_db
 from flask_cors import CORS
 
 
 from flask import Flask
-from .db import close_db
-from .models.player import player_bp
-from .models.team import team_bp
-from .models.coach import coach_bp
-from .models.training import training_bp
-from .models.injury import injury_bp
-from .models.match import match_bp
-from .models.medical_staff import medical_staff_bp
-from .models.player_performance import player_performance_bp
-from .models.player_stats import player_stats_bp
-from .models.team_performance import team_performance_bp
+from db import close_db
+from models.player import player_bp
+from models.team import team_bp
+from models.coach import coach_bp
+from models.training import training_bp
+from models.injury import injury_bp
+from models.match import match_bp
+from models.medical_staff import medical_staff_bp
+from models.player_performance import player_performance_bp
+from models.player_stats import player_stats_bp
+from models.team_performance import team_performance_bp
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
