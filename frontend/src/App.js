@@ -8,6 +8,7 @@ import Adminpage from './Components/Adminpage';
 import Players from './Components/Players';
 import MatchPage from './Components/Match';
 import TeamPerformancePage from './Components/TeamPerformance';
+import PlayersPerformancePage from './Components/PlayerPerformance';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           <Route path="addplayer" element={<Players />} />
           <Route path="match" element={<MatchPage />} />
           <Route path="teamperformance" element={<TeamPerformancePage />} />
+          <Route path="playerperformance" element={<PlayersPerformancePage />} />
         </Route>
       </Routes>
     </Router>

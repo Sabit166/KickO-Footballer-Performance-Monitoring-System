@@ -3,51 +3,62 @@ from db import get_db
 
 player_performance_bp = Blueprint('player_performance', __name__)
 
-# # POST endpoint to insert a new player performance record
-# @player_performance_bp.route('/player_performance', methods=['POST'])
-# def add_player_performance():
-#     data = request.json
-#     db = get_db()
-#     cursor = db.cursor()
-#     # Adjust attributes as per your PLAYER_PERFORMANCE table
-#     sql = """
-#         INSERT INTO PLAYER_PERFORMANCE (PLAYER_ID, STATS_ID)
-#         VALUES (%s, %s)
-#     """
-#     cursor.execute(sql, (data['PLAYER_ID'], data['STATS_ID']))
-#     db.commit()
-#     return jsonify({"message": "Player performance added"}), 201
+# Create or replace the view for player stats per match
+def create_player_match_performance_view():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("""
+        CREATE OR REPLACE VIEW player_match_performance_view AS
+        SELECT 
+            sm.MATCH_ID,
+            p.PLAYER_ID,
+            p.PLAYER_NAME,
+            s.GOALS,
+            s.ASSISTS,
+            s.FOULS,
+            s.YELLOW_CARDS,
+            s.RED_CARDS,
+            s.MINUTES_PLAYED
+        FROM stat_match sm
+        JOIN stats s ON sm.STATS_ID = s.STATS_ID
+        JOIN player_stats ps ON s.STATS_ID = ps.STATS_ID
+        JOIN player p ON ps.PLAYER_ID = p.PLAYER_ID
+    """)
+    db.commit()
 
-@player_performance_bp.route('/player_performance', methods=['GET'])
-def get_stats():
+
+# GET endpoint to fetch all players' performance for a specific match
+@player_performance_bp.route('/player_performance/<match_id>', methods=['GET'])
+def get_match_player_performance(match_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
+
+    # Ensure the view exists
+    create_player_match_performance_view()
+
+    # Directly fetch player stats for the given match_id
     cursor.execute("""
-        CREATE VIEW PLAYER_PERFORMANCE AS
-        SELECT pr.PLAYER_ID, PLAYER_NAME, GOALS, ASSISTS, FOULS, YELLOW_CARDS, RED_CARDS, MINUTES_PLAYED
-        FROM player_STATS pr, player p, stats ps
-        WHERE pr.PLAYER_ID=p.PLAYER_ID AND pr.STATS_ID=ps.STATS_ID
-        
-        SELECT * FROM PLAYER_PERFORMANCE
-    """)
-    return jsonify(cursor.fetchall())
+        SELECT PLAYER_ID, PLAYER_NAME, GOALS, ASSISTS, FOULS, YELLOW_CARDS, RED_CARDS, MINUTES_PLAYED
+        FROM player_match_performance_view
+        WHERE MATCH_ID = %s
+    """, (match_id,))
+    result = cursor.fetchall()
 
-# @player_performance_bp.route('/player_performance/<int:player_id>', methods=['PUT'])
-# def update_stats(player_id):
-#     data = request.json
-#     db = get_db()
-#     cursor = db.cursor()
-#     sql = """UPDATE PLAYER_PERFORMANCE 
-#              SET STATS_ID=%s 
-#              WHERE PLAYER_ID=%s"""
-#     cursor.execute(sql, (data['STATS_ID'], player_id))
-#     db.commit()
-#     return jsonify({"message": "Player stats updated"})
+    if not result:
+        return jsonify({"message": f"No player performance found for match {match_id}"}), 404
 
-# @player_performance_bp.route('/player_performance/<int:player_id>', methods=['DELETE'])
-# def delete_stats(player_id):
-#     db = get_db()
-#     cursor = db.cursor()
-#     cursor.execute("DELETE FROM PLAYER_PERFORMANCE WHERE PLAYER_ID=%s", (player_id,))
-#     db.commit()
-#     return jsonify({"message": "Player performance deleted"})
+    return jsonify(result), 200
+
+
+# Optional: GET all matches and players stats
+@player_performance_bp.route('/player_performance', methods=['GET'])
+def get_all_match_performance():
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+
+    create_player_match_performance_view()
+
+    cursor.execute("SELECT * FROM player_match_performance_view")
+    result = cursor.fetchall()
+
+    return jsonify(result), 200
