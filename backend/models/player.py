@@ -28,6 +28,15 @@ def get_players():
     result = cursor.fetchall()
     return jsonify(result)
 
+# READ PARTICULAR PLAYER 
+@player_bp.route('/players/search/<player_name>', methods=['GET'])
+def search_player_by_name(player_name):
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM PLAYER WHERE PLAYER_NAME = %s", (player_name,))
+    result = cursor.fetchall()
+    return jsonify(result)
+
 # UPDATE a player
 @player_bp.route('/players/<int:player_id>', methods=['PUT'])
 def update_player(player_id):
