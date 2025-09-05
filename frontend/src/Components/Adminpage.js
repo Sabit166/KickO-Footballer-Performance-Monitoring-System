@@ -21,9 +21,26 @@ export default function Adminpage() {
     const location = useLocation();
     const { role, teamid } = location.state || {};
 
+    // Fallback: Try to get data from localStorage if not in state
+    let finalRole = role;
+    let finalTeamId = teamid;
+
+    if (!role || !teamid) {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                const userData = JSON.parse(storedUser);
+                finalRole = role || userData.role || 'Unknown';
+                finalTeamId = teamid || userData.teamId || userData.team_id || userData.TEAM_ID || 'Unknown';
+            } catch (error) {
+                console.error('Error parsing stored user data:', error);
+            }
+        }
+    }
+
     // Add safety checks for undefined values
-    const safeRole = role || 'Unknown';
-    const safeTeamId = teamid || 'Unknown';
+    const safeRole = finalRole || 'Unknown';
+    const safeTeamId = finalTeamId || 'Unknown';
 
     const [openSubmenu, setOpenSubmenu] = useState({});
 
@@ -208,7 +225,7 @@ export default function Adminpage() {
                 }}
             >
                 <Toolbar /> {/* This creates the spacing for the fixed AppBar */}
-                <Outlet />
+                <Outlet context={{ role: safeRole, teamid: safeTeamId }} />
             </Box>
         </Box>
     )
