@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import Collapse from '@mui/material/Collapse';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
     Drawer,
@@ -10,37 +13,35 @@ import {
     AppBar,
     Typography,
     Box,
-    ListItemIcon,
-    Collapse
+    ListItemIcon
 } from "@mui/material";
-import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
 const drawerWidth = 240;
 
 export default function Playerpage() {
     const location = useLocation();
-    const { role, teamid } = location.state || {};
+    const { playerName, teamid, email } = location.state || {};
 
     // Fallback: Try to get data from localStorage if not in state
-    let finalRole = role;
+    let finalPlayerName = playerName;
     let finalTeamId = teamid;
-
-    if (!role || !teamid) {
+    let finalEmail = email;
+    if (!playerName || !teamid || !email) {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             try {
                 const userData = JSON.parse(storedUser);
-                finalRole = role || userData.role || 'Unknown';
-                finalTeamId = teamid || userData.teamId || userData.team_id || userData.TEAM_ID || 'Unknown';
+                finalPlayerName = finalPlayerName || userData.name || userData.playerName || 'Player';
+                finalTeamId = finalTeamId || userData.teamId || userData.team_id || userData.TEAM_ID || 'Unknown';
+                finalEmail = finalEmail || userData.email || 'Unknown';
             } catch (error) {
                 console.error('Error parsing stored user data:', error);
             }
         }
     }
-
-    // Add safety checks for undefined values
-    const safeRole = finalRole || 'Unknown';
+    const safePlayerName = finalPlayerName || 'Player';
     const safeTeamId = finalTeamId || 'Unknown';
+    const safeEmail = finalEmail || 'Unknown';
 
     const [openSubmenu, setOpenSubmenu] = useState({});
 
@@ -65,7 +66,7 @@ export default function Playerpage() {
             >
                 <Toolbar>
                     <Typography variant="h6" noWrap component="div" sx={{ color: '#ffffff' }}>
-                        {safeRole} and Team ID: {safeTeamId}
+                        Welcome, {safePlayerName} | Team ID: {safeTeamId} | Email: {safeEmail}
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -89,22 +90,13 @@ export default function Playerpage() {
                 <Box sx={{ overflow: "auto" }}>
                     <List>
                         {[
-                            { text: "Dashboard", path: ".", icon: '/football.png' },
-                            { text: "My Profile", path: "profile", icon: '/user.png' },
-                            { text: "Performance", path: "performance", icon: '/performance.png' },
-                            { text: "Injury Records", path: "injury", icon: '/injury.png' },
-                            { text: "Team Info", path: "team", icon: '/team.png' },
-                            { text: "Match Schedule", path: "match", icon: '/match.png' }
+                            { text: "Dashboard", path: ".", icon: '/logo192.png' },
+                            { text: "My Profile", path: "player-profile", icon: '/logo192.png' },
+                            { text: "Performance", path: "performance", icon: '/logo192.png' },
+                            { text: "Injury Records", path: "injury", icon: '/logo192.png' },
+                            { text: "Team Info", path: "team", icon: '/logo192.png' },
+                            { text: "Match Schedule", path: "match", icon: '/logo192.png' }
                         ]
-                            .filter((item) => {
-                                if (safeRole === "admin") {
-                                    return true;
-                                }
-                                else if (safeRole === "player") {
-                                    return item.text !== "Add Player" && item.text !== "HomePage";
-                                }
-                                return true;
-                            })
                             .map((item) => {
                                 const isActive = location.pathname === item.path;
                                 const hasSubmenu = item.submenu && item.submenu.items;
@@ -212,7 +204,7 @@ export default function Playerpage() {
                 }}
             >
                 <Toolbar /> {/* This creates the spacing for the fixed AppBar */}
-                <Outlet context={{ role: safeRole, teamid: safeTeamId }} />
+                <Outlet context={{ playerName: safePlayerName, teamid: safeTeamId, email: safeEmail }} />
             </Box>
         </Box>
     )
