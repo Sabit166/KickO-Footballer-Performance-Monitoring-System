@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 const db = await mysql.createConnection({
     host: "localhost",
     user: "root",
-    password: "Allahshohai",
+    password: "yourpass",
     database: "p_dbms"
 });
 
@@ -156,3 +156,4 @@ app.post("/api/signup", async (req, res) => {
 });
 
 app.listen(5001, () => console.log("Server running on http://localhost:5001"));
+
