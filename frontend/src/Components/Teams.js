@@ -17,20 +17,22 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import backgroundImage from "../background_home.png";
+import axios from "axios";
 
 function TeamPage() {
   const [team, setTeam] = useState([]);
   const [newTeam, setNewTeam] = useState({
-    PLAYER_ID: "",
-    PLAYER_NAME: ""
+    TEAM_ID: "",
+    TEAM_NAME: ""
   });
+  const [error, setError] = useState("");
 
   // Fetch players from Flask backend
   const fetchTeam = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/team");
       const data = response.data;
-      setTeams(data);
+      setTeam(data);
     } catch (error) {
       setError("Failed to fetch team. Please try again.");
     }

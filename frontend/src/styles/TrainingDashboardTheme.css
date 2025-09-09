@@ -1,0 +1,5 @@
+.training-bg{position:relative;min-height:100vh;background:rgba(0,0,0,0.85) url('/bg2.jpg') center/cover no-repeat fixed;}
+.training-bg::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.55),rgba(0,0,0,0.85));pointer-events:none}
+.tech-grid{background-image:radial-gradient(rgba(0,188,212,.06) 1px, transparent 1px), radial-gradient(rgba(132,204,22,.05) 1px, transparent 1px);background-size:30px 30px, 40px 40px;background-position:0 0, 15px 15px}
+.glow-border{box-shadow:0 0 0 1px rgba(0,188,212,.25),0 0 20px rgba(0,188,212,.15) inset}
+.glow-effect{box-shadow:0 0 10px rgba(0,188,212,.6),0 0 20px rgba(132,204,22,.3)}

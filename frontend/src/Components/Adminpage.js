@@ -87,7 +87,8 @@ export default function Adminpage() {
                                 text: "Report", path: "report", icon: '/logo192.png', submenu: {
                                     items: [
                                         { text: "Player Report", path: "playerreport", icon: '/logo192.png' },
-                                        { text: "Team Report", path: "teamperformance", icon: '/logo192.png' }
+                                        { text: "Team Report", path: "teamperformance", icon: '/logo192.png' },
+                                        { text: "Training Dashboard", path: "training", icon: '/logo192.png' }
                                     ]
                                 }
                             }

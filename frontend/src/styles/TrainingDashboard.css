@@ -1,0 +1,41 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Add custom styles here */
+body {
+  @apply bg-gray-900 text-white;
+}
+
+.tech-grid {
+    background-image: linear-gradient(rgba(0, 188, 212, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 188, 212, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.glow-border {
+    border: 1px solid rgba(0, 188, 212, 0.5);
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.2);
+}
+
+.glow-effect {
+    box-shadow: 0 0 20px rgba(0, 188, 212, 0.3);
+}
+
+/* Define color variables for consistency */
+:root {
+  --background: #1a202c; /* A dark gray */
+  --foreground: #e2e8f0; /* A light gray */
+  --card: #2d3748; /* A slightly lighter dark gray */
+  --primary: #00bcd4; /* The cyan color from your example */
+  --muted-foreground: #a0aec0; /* A medium gray for less important text */
+  --border: #4a5568; /* A gray for borders */
+}
+
+.bg-background { background-color: var(--background); }
+.text-foreground { color: var(--foreground); }
+.bg-card { background-color: var(--card); }
+.text-primary { color: var(--primary); }
+.text-muted-foreground { color: var(--muted-foreground); }
+.border-border { border-color: var(--border); }
+.border-primary { border-color: var(--primary); }
