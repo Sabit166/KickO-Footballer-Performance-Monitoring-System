@@ -41,6 +41,7 @@ function NewLogin() {
             const userName = userData.name || 'User';
             const userRole = userData.role || 'Unknown';
             const userTeam = userData.teamId || 'Unknown';
+            const userEmail = userData.email || 'Unknown';
 
             setSuccess(`Welcome back, ${userName}! Role: ${userRole}, Team: ${userTeam}`);
 
@@ -48,12 +49,25 @@ function NewLogin() {
             localStorage.setItem('user', JSON.stringify(userData));
 
             // Redirect with proper state syntax
-            navigate('/adminpage', {
-                state: {
-                    role: userRole,
-                    teamid: userTeam
-                }
-            }); // Redirect to home page after successful login
+            if (userRole === 'admin') {
+                navigate('/adminpage', {
+                    state: {
+                        role: userRole,
+                        teamid: userTeam,
+                        email: userEmail
+                    }
+                });
+            } else if (userRole === 'player') {
+                navigate('/playerdashboard', {
+                    state: {
+                        playerName: userName,
+                        teamid: userTeam,
+                        email: userEmail
+                    }
+                });
+            } else {
+                // Handle other roles or show an error
+            } // Redirect to home page after successful login
 
         } catch (error) {
             if (error.response && error.response.data && error.response.data.error) {

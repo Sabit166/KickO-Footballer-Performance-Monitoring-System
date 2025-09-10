@@ -28,6 +28,16 @@ def get_players():
     result = cursor.fetchall()
     return jsonify(result)
 
+# READ PARTICULAR PLAYER 
+@player_bp.route('/players/email/<email>', methods=['GET'])
+def get_player_by_email(email):
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM PLAYER WHERE EMAIL = %s", (email,))
+    result = cursor.fetchone()  # single player
+    return jsonify(result if result else {})
+
+
 # UPDATE a player
 @player_bp.route('/players/<int:player_id>', methods=['PUT'])
 def update_player(player_id):

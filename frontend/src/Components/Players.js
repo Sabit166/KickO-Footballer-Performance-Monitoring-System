@@ -24,8 +24,10 @@ import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import backgroundImage from "../background_home.png";
 import axios from "axios";
+import { useOutletContext } from 'react-router-dom';
 
 function PlayersPage() {
+  const { role, teamid } = useOutletContext();
   const [players, setPlayers] = useState([]);
   const [newPlayer, setNewPlayer] = useState({
     PLAYER_ID: "",
@@ -79,6 +81,13 @@ function PlayersPage() {
       // Handle error silently or show user-friendly message
     }
   };
+
+  const makePlayerId = () => {
+    let date_ = Date.now();
+    let random_number = Math.floor(Math.random() * 1000) + 1;
+    let player_id_number = (date_ % random_number) % 300;
+    return `${teamid}pl${player_id_number}`;
+  }
 
   const handleDialogClose = () => {
     setOpenDialog(false);
@@ -141,7 +150,10 @@ function PlayersPage() {
               variant="contained"
               color="primary"
               startIcon={<AddIcon />}
-              onClick={() => setOpenDialog(true)}
+              onClick={() => {
+                setOpenDialog(true);
+                setNewPlayer(prev => ({ ...prev, PLAYER_ID: makePlayerId() }));
+              }}
               sx={{
                 fontWeight: "bold",
                 borderRadius: "10px",
@@ -358,6 +370,9 @@ function PlayersPage() {
                   onChange={(e) => setNewPlayer({ ...newPlayer, PLAYER_ID: e.target.value })}
                   fullWidth
                   required
+                  InputProps={{
+                    readOnly: true,
+                  }}
                   sx={{
                     "& .MuiInputLabel-root": { color: "white" },
                     "& .MuiInputLabel-root.Mui-focused": { color: "white" },

@@ -9,7 +9,11 @@ import {
     Button,
     IconButton,
     Box,
-    Typography
+    Typography,
+    MenuItem,
+    Select,
+    InputLabel,
+    FormControl
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +26,8 @@ export default function SignUp({ open, onClose }) {
         teamName: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        role: '' // Added role
     });
 
     const [signupSuccess, setSignupSuccess] = useState(false);
@@ -35,7 +40,8 @@ export default function SignUp({ open, onClose }) {
             teamName: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            role: ''
         });
         setSignupSuccess(false);
         setTeamId('');
@@ -51,25 +57,20 @@ export default function SignUp({ open, onClose }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); // Clear previous errors
+        setError('');
 
-        // Validate passwords match before submitting
         if (formData.password !== formData.confirmPassword) {
             setError("Passwords do not match");
             return;
         }
 
-        if (!formData.name || !formData.email || !formData.password) {
+        if (!formData.name || !formData.email || !formData.password || !formData.role) {
             setError("Please fill in all required fields");
             return;
         }
 
-        // Send data to backend
         try {
-            const signupData = {
-                ...formData,
-                role: 'admin'  // Add default role as admin
-            };
+            const signupData = { ...formData };
             const response = await axios.post("http://localhost:5001/api/signup", signupData);
             setSignupSuccess(true);
             setTeamId(response.data.teamId);
@@ -82,21 +83,19 @@ export default function SignUp({ open, onClose }) {
                 setError("An error occurred during signup. Please try again.");
             }
         }
-        // Add your sign-up logic here
     };
 
     const handleClose = () => {
-        clearFormData(); // Clear form when closing
+        clearFormData();
         onClose();
     };
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth
-
             PaperProps={{
                 sx: {
-                    boxShadow: "0 0 20px 5px rgba(33, 150, 243, 0.6)", // blue glow
-                    borderRadius: 3, // smooth rounded corners
+                    boxShadow: "0 0 20px 5px rgba(33, 150, 243, 0.6)",
+                    borderRadius: 3,
                 },
             }}
             sx={{
@@ -108,11 +107,7 @@ export default function SignUp({ open, onClose }) {
                 color: 'white',
             }}
         >
-            <DialogTitle
-                sx={{
-                    color: 'white',
-                }}
-            >
+            <DialogTitle sx={{ color: 'white' }}>
                 Sign Up
                 <IconButton
                     aria-label="close"
@@ -128,9 +123,10 @@ export default function SignUp({ open, onClose }) {
                 </IconButton>
             </DialogTitle>
 
-            <DialogContent dividers
+            <DialogContent
+                dividers
                 sx={{
-                    '& .MuiTextField-root': {
+                    '& .MuiTextField-root, & .MuiFormControl-root': {
                         '& .MuiInputLabel-root': {
                             color: 'white',
                         },
@@ -175,7 +171,7 @@ export default function SignUp({ open, onClose }) {
                             }}
                         >
                             <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', mb: 1 }}>
-                                Your Individual Admin ID:
+                                Your Individual ID:
                             </Typography>
                             <Typography
                                 variant="h5"
@@ -260,6 +256,31 @@ export default function SignUp({ open, onClose }) {
                             value={formData.confirmPassword}
                             onChange={handleInputChange}
                         />
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel sx={{ color: 'white' }}>Role</InputLabel>
+                            <Select
+                                name="role"
+                                value={formData.role}
+                                onChange={handleInputChange}
+                                label="Role"
+                                sx={{
+                                    color: 'white',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'rgba(255, 255, 255, 0.5)',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                        borderColor: 'white',
+                                    },
+                                }}
+                            >
+                                <MenuItem value="admin">Admin</MenuItem>
+                                <MenuItem value="player">Player</MenuItem>
+                                <MenuItem value="coach">Coach</MenuItem>
+                            </Select>
+                        </FormControl>
                     </>
                 )}
             </DialogContent>
@@ -276,9 +297,7 @@ export default function SignUp({ open, onClose }) {
                         sx={{
                             backgroundColor: '#4CAF50',
                             color: 'white',
-                            '&:hover': {
-                                backgroundColor: '#45a049',
-                            },
+                            '&:hover': { backgroundColor: '#45a049' },
                             borderRadius: '20px',
                             px: 3
                         }}
@@ -287,10 +306,7 @@ export default function SignUp({ open, onClose }) {
                     </Button>
                 ) : (
                     <>
-                        <Button
-                            onClick={handleClose}
-                            sx={{ color: 'white' }}
-                        >
+                        <Button onClick={handleClose} sx={{ color: 'white' }}>
                             Cancel
                         </Button>
                         <Button
@@ -299,9 +315,7 @@ export default function SignUp({ open, onClose }) {
                             sx={{
                                 backgroundColor: 'rgba(255, 255, 255, 0.2)',
                                 color: 'white',
-                                '&:hover': {
-                                    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                },
+                                '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.3)' },
                                 borderRadius: '20px',
                             }}
                         >

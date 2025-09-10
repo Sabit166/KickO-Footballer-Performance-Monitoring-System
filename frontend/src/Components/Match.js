@@ -4,26 +4,21 @@ import {
   Container,
   Typography,
   Button,
-  TextField,
   IconButton,
   Paper
 } from "@mui/material";
+import { useNavigate } from 'react-router-dom';
 import SportsSoccerIcon from "@mui/icons-material/SportsSoccer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import backgroundImage from "../background_home.png";
+import backgroundImage from "../background_home.png"; // fixed path: must not leave src
 
 function MatchPage() {
+  const navigate = useNavigate();
   const [matches, setMatches] = useState([]);
   const [scorecards, setScorecards] = useState({});
   const [scorers, setScorers] = useState({});
-  const [newMatch, setNewMatch] = useState({
-    MATCH_ID: "",
-    TEAM_ONE: "",
-    TEAM_TWO: "",
-    STADIUM: "",
-    WINNING_TEAM: "",
-  });
+  // Old inline add form state removed; now handled in AddMatchWizard
 
   // (Old renderTeam removed in new scoreboard design)
 
@@ -147,35 +142,7 @@ function MatchPage() {
     }
   }, [matches]);
 
-  const handleAddMatch = async () => {
-    if (!newMatch.MATCH_ID) {
-      return alert("Match Identification Number required!");
-    }
-    try {
-      const res = await fetch("http://localhost:5000/matches", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          MATCH_ID: newMatch.MATCH_ID,
-          TEAM_ONE: newMatch.TEAM_ONE,
-          TEAM_TWO: newMatch.TEAM_TWO,
-          STADIUM: newMatch.STADIUM,
-          WINNING_TEAM: newMatch.WINNING_TEAM,
-        }),
-      });
-      if (!res.ok) throw new Error("Failed to add match");
-      setNewMatch({
-        MATCH_ID: "",
-        TEAM_ONE: "",
-        TEAM_TWO: "",
-        STADIUM: "",
-        WINNING_TEAM: ""
-      });
-      fetchMatches(); // Refresh list after adding
-    } catch (error) {
-      console.error("Error adding match:", error);
-    }
-  };
+  // handleAddMatch removed
 
   const handleDeleteMatch = async (id) => {
     try {
@@ -223,75 +190,9 @@ function MatchPage() {
             Match Management
           </Typography>
 
-          {/* Add Match Form */}
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 2,
-              mb: 4,
-              bgcolor: "rgba(255, 255, 255, 0.2)",
-              p: 2,
-              borderRadius: 2,
-            }}
-          >
-            <TextField
-              label="Match ID"
-              variant="outlined"
-              value={newMatch.MATCH_ID}
-              onChange={(e) =>
-                setNewMatch({ ...newMatch, MATCH_ID: e.target.value })
-              }
-              fullWidth
-              sx={{ flex: "1" }}
-            />
-            <TextField
-              label="Team One"
-              variant="outlined"
-              value={newMatch.TEAM_ONE}
-              onChange={(e) =>
-                setNewMatch({ ...newMatch, TEAM_ONE: e.target.value })
-              }
-              fullWidth
-              sx={{ flex: "1" }}
-            />
-            <TextField
-              label="Team Two"
-              variant="outlined"
-              value={newMatch.TEAM_TWO}
-              onChange={(e) =>
-                setNewMatch({ ...newMatch, TEAM_TWO: e.target.value })
-              }
-              fullWidth
-              sx={{ flex: "1" }}
-            />
-            <TextField
-              label="Stadium"
-              variant="outlined"
-              value={newMatch.STADIUM}
-              onChange={(e) =>
-                setNewMatch({ ...newMatch, STADIUM: e.target.value })
-              }
-              sx={{ width: "200px" }}
-            />
-            <TextField
-              label="Winning Team"
-              variant="outlined"
-              value={newMatch.WINNING_TEAM}
-              onChange={(e) =>
-                setNewMatch({ ...newMatch, WINNING_TEAM: e.target.value })
-              }
-              sx={{ width: "200px" }}
-            />
-            <Button
-              variant="contained"
-              color="success"
-              startIcon={<AddIcon />}
-              onClick={handleAddMatch}
-              sx={{ height: "56px", fontWeight: "bold" }}
-            >
-              Add Match
-            </Button>
+          {/* Navigate to Add Match Wizard */}
+          <Box sx={{ display:'flex', justifyContent:'flex-end', mb:4 }}>
+            <Button variant="contained" color="success" startIcon={<AddIcon />} onClick={()=>navigate('/adminpage/add-match')}>Add Match</Button>
           </Box>
 
           {/* Match List with Scorecard and Scorers */}
@@ -324,9 +225,11 @@ function MatchPage() {
                     <Box sx={{ textAlign: 'center', minWidth: 140 }}>
                       <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: winnerColor(match, match.TEAM_TWO) }}>{match.TEAM_TWO || 'Team Two'}</Typography>
                     </Box>
-                    <IconButton size="small" color="error" onClick={() => handleDeleteMatch(match.MATCH_ID)} sx={{ position: 'absolute', top: 8, right: 8 }}>
-                      <DeleteIcon />
-                    </IconButton>
+                    <Box sx={{ position:'absolute', top:8, right:8, display:'flex', gap:1 }}>
+                      <IconButton size="small" color="error" onClick={() => handleDeleteMatch(match.MATCH_ID)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
                   </Box>
                   {/* Stadium */}
                   <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 'bold', textAlign: 'center', bgcolor: 'rgba(255,255,255,0.08)', p: 1, borderRadius: 1, fontStyle: match.STADIUM ? 'normal' : 'italic', letterSpacing: 0.5 }}>
