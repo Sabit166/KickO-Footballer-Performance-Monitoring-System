@@ -54,6 +54,7 @@ const MatchDetailsForm = memo(function MatchDetailsForm({ values, onField, canEd
 function AddMatchWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [serverMatchId, setServerMatchId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -67,11 +68,11 @@ function AddMatchWizard() {
 
   // Initialize teams container when proceeding to step 2
   useEffect(() => {
-    // When entering step 2, fetch players for each team from backend and seed playersByTeam.
+    // When entering step 2 (after match created) fetch players for each team including trigger-created stats rows.
     async function loadTeamPlayers(team) {
       if (!team) return [];
       try {
-        const resp = await fetch(`http://localhost:5000/teams/${encodeURIComponent(team)}/players?match_id=${encodeURIComponent(match.MATCH_ID||'')}`);
+        const resp = await fetch(`http://localhost:5000/teams/${encodeURIComponent(team)}/players?match_id=${encodeURIComponent(serverMatchId||match.MATCH_ID||'')}`);
         if (!resp.ok) throw new Error('Failed to fetch team players');
         const data = await resp.json();
         // Map returned players into the local player structure expected by the form
@@ -92,7 +93,7 @@ function AddMatchWizard() {
       }
     }
 
-    if (step === 2) {
+    if (step === 2 && serverMatchId) {
       (async () => {
         const t1 = await loadTeamPlayers(match.TEAM_ONE);
         const t2 = await loadTeamPlayers(match.TEAM_TWO);
@@ -103,7 +104,7 @@ function AddMatchWizard() {
         }));
       })();
     }
-  }, [step, match.TEAM_ONE, match.TEAM_TWO, match.MATCH_ID]);
+  }, [step, match.TEAM_ONE, match.TEAM_TWO, match.MATCH_ID, serverMatchId]);
 
   const addPlayerRow = useCallback((team) => {
     const id = generateClientId();
@@ -151,18 +152,8 @@ function AddMatchWizard() {
   const submitAll = useCallback(async () => {
     try {
       setSubmitting(true); setError(null);
-      const res = await fetch('http://localhost:5000/matches', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(match)
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error('Match creation failed: ' + text);
-      }
-      const created = await res.json();
-      const serverMatchId = created.MATCH_ID || match.MATCH_ID; // fall back if server returns null
       const payload = Object.entries(playersByTeam).flatMap(([team, arr]) =>
         arr.filter(p => p.PLAYER_NAME.trim()).map(p => ({
-          MATCH_ID: match.MATCH_ID,
           TEAM_NAME: team,
           PLAYER_NAME: p.PLAYER_NAME,
           STATS_ID: p.STATS_ID || undefined,
@@ -170,7 +161,7 @@ function AddMatchWizard() {
           ASSISTS: p.ASSISTS,
           FOULS: p.FOULS,
           YELLOW_CARDS: p.YELLOW_CARDS,
-            RED_CARDS: p.RED_CARDS,
+          RED_CARDS: p.RED_CARDS,
           MINUTES_PLAYED: p.MINUTES_PLAYED
         }))
       );
@@ -186,7 +177,7 @@ function AddMatchWizard() {
       navigate('/adminpage/match');
     } catch (e) { console.error(e); setError(e.message); }
     finally { setSubmitting(false); }
-  }, [match, playersByTeam, navigate]);
+  }, [playersByTeam, navigate, serverMatchId]);
 
   return (
     <Box sx={{ minHeight:'100vh', backgroundImage:`url(${backgroundImage})`, backgroundSize:'cover', backgroundPosition:'center', display:'flex', alignItems:'center', justifyContent:'center', p:3 }}>
@@ -254,8 +245,21 @@ function AddMatchWizard() {
         {/* Sticky action bar */}
         <Box sx={{ position:'sticky', bottom:0, left:0, mt:5, pt:2, display:'flex', justifyContent:'space-between', alignItems:'center', gap:2, background:'linear-gradient(to top, rgba(0,0,0,0.85), rgba(0,0,0,0))' }}>
           {step === 2 && <Button variant="text" color="inherit" onClick={()=>setStep(1)} sx={{ color:'#fff' }}>Back</Button>}
-          {step === 1 && <Button variant="contained" disabled={!canProceed} onClick={()=>setStep(2)} sx={{ ml:'auto' }}>Next: Player Stats</Button>}
-          {step === 2 && <Button variant="contained" color="success" disabled={submitting} onClick={submitAll} sx={{ ml:'auto' }}>{submitting? 'Saving...' : 'Finish & Save'}</Button>}
+          {step === 1 && <Button variant="contained" disabled={!canProceed || submitting} onClick={async ()=>{
+            try {
+              setSubmitting(true); setError(null);
+              // Create match first so trigger generates placeholder stats
+              const res = await fetch('http://localhost:5000/matches', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(match)
+              });
+              if (!res.ok) { const text = await res.text(); throw new Error('Match creation failed: ' + text); }
+              const created = await res.json();
+              setServerMatchId(created.MATCH_ID || match.MATCH_ID);
+              setStep(2);
+            } catch (e) { console.error(e); setError(e.message); }
+            finally { setSubmitting(false); }
+          }} sx={{ ml:'auto' }}>Next: Player Stats</Button>}
+          {step === 2 && <Button variant="contained" color="success" disabled={submitting || !serverMatchId} onClick={submitAll} sx={{ ml:'auto' }}>{submitting? 'Saving...' : 'Finish & Save'}</Button>}
         </Box>
       </Paper>
     </Box>

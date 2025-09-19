@@ -6,13 +6,34 @@ match_bp = Blueprint('match', __name__)
 # Existing endpoints ...
 @match_bp.route('/matches', methods=['POST'])
 def add_match():
-    data = request.json
+    """Create a match.
+    If client supplies MATCH_ID and it's not used, insert with that id (helpful for user-entered IDs).
+    Otherwise let AUTO_INCREMENT assign it. Returns the effective MATCH_ID or an error JSON.
+    """
+    data = request.json or {}
+    required = ['TEAM_ONE', 'TEAM_TWO', 'STADIUM']
+    missing = [f for f in required if not data.get(f)]
+    if missing:
+        return jsonify({"error": f"Missing required fields: {', '.join(missing)}"}), 400
+
     db = get_db()
     cursor = db.cursor()
-    sql = "INSERT INTO `MATCH` (TEAM_ONE, TEAM_TWO, WINNING_TEAM, STADIUM) VALUES (%s, %s, %s, %s)"
-    cursor.execute(sql, (data['TEAM_ONE'], data['TEAM_TWO'], data['WINNING_TEAM'], data['STADIUM']))
-    db.commit()
-    return jsonify({"message": "Match added successfully", "MATCH_ID": cursor.lastrowid})
+    supplied_id = data.get('MATCH_ID')
+    try:
+        if supplied_id:
+            # Attempt explicit id insert
+            sql = "INSERT INTO `match` (MATCH_ID, TEAM_ONE, TEAM_TWO, WINNING_TEAM, STADIUM) VALUES (%s,%s,%s,%s,%s)"
+            cursor.execute(sql, (supplied_id, data['TEAM_ONE'], data['TEAM_TWO'], data.get('WINNING_TEAM'), data['STADIUM']))
+            match_id = supplied_id
+        else:
+            sql = "INSERT INTO `match` (TEAM_ONE, TEAM_TWO, WINNING_TEAM, STADIUM) VALUES (%s,%s,%s,%s)"
+            cursor.execute(sql, (data['TEAM_ONE'], data['TEAM_TWO'], data.get('WINNING_TEAM'), data['STADIUM']))
+            match_id = cursor.lastrowid
+        db.commit()
+        return jsonify({"message": "Match added successfully", "MATCH_ID": match_id}), 201
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
 
 @match_bp.route('/matches', methods=['GET'])
 def get_matches():

@@ -21,18 +21,34 @@ def get_team_players(team_id):
     match_id = request.args.get('match_id')
     db = get_db()
     cursor = db.cursor()
+    # Allow caller to pass either TEAM_ID or TEAM_NAME; resolve name -> id if needed
+    try:
+        cursor.execute("SELECT TEAM_ID FROM team WHERE TEAM_ID = %s", (team_id,))
+        exists_id = cursor.fetchone()
+        if not exists_id:
+            cursor.execute("SELECT TEAM_ID FROM team WHERE TEAM_NAME = %s", (team_id,))
+            row_id = cursor.fetchone()
+            if row_id:
+                team_id = row_id[0]
+    except Exception:
+        pass  # fallback to original team_id if resolution fails
     try:
         if match_id:
-            # Join order ensures stats only appear if linked to this match
+            # Restrict stats to only those tied to this match to avoid duplicates (one row per player)
             sql = """
                 SELECT p.PLAYER_ID, p.PLAYER_NAME,
                        s.STATS_ID, s.GOALS, s.ASSISTS, s.FOULS, s.YELLOW_CARDS, s.RED_CARDS, s.MINUTES_PLAYED
                 FROM player_team pt
                 JOIN player p ON pt.PLAYER_ID = p.PLAYER_ID
-                LEFT JOIN player_stats ps ON ps.PLAYER_ID = p.PLAYER_ID
-                LEFT JOIN stat_match sm ON sm.STATS_ID = ps.STATS_ID AND sm.MATCH_ID = %s
-                LEFT JOIN stats s ON s.STATS_ID = sm.STATS_ID
+                LEFT JOIN (
+                    SELECT ps.PLAYER_ID, st.*
+                    FROM stat_match sm
+                    JOIN stats st ON st.STATS_ID = sm.STATS_ID
+                    JOIN player_stats ps ON ps.STATS_ID = sm.STATS_ID
+                    WHERE sm.MATCH_ID = %s
+                ) s ON s.PLAYER_ID = p.PLAYER_ID
                 WHERE pt.TEAM_ID = %s
+                GROUP BY p.PLAYER_ID, p.PLAYER_NAME, s.STATS_ID, s.GOALS, s.ASSISTS, s.FOULS, s.YELLOW_CARDS, s.RED_CARDS, s.MINUTES_PLAYED
             """
             cursor.execute(sql, (match_id, team_id))
         else:
@@ -142,8 +158,7 @@ def insert_player_performance(match_id):
         for record in data:
             player_name = record.get('PLAYER_NAME', '').strip()
             if not player_name:
-                # Skip empty entries
-                continue
+                continue  # skip empty rows
 
             goals = int(record.get('GOALS', 0))
             assists = int(record.get('ASSISTS', 0))
@@ -152,44 +167,67 @@ def insert_player_performance(match_id):
             red_cards = int(record.get('RED_CARDS', 0))
             minutes_played = int(record.get('MINUTES_PLAYED', 0))
 
-            # Use provided STATS_ID if present; otherwise generate a new one.
-            stats_id = record.get('STATS_ID') or generate_id('st_')
-            
-            # Insert into stats table
-            insert_stats_sql = """
-                INSERT INTO stats (STATS_ID, GOALS, ASSISTS, FOULS, YELLOW_CARDS, RED_CARDS, MINUTES_PLAYED)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """
-            cursor.execute(insert_stats_sql, (stats_id, goals, assists, fouls, yellow_cards, red_cards, minutes_played))
+            provided_stats_id = record.get('STATS_ID')
 
-            # Check if player exists by PLAYER_NAME; if not, insert as a new player.
-            select_player_sql = "SELECT PLAYER_ID FROM player WHERE PLAYER_NAME = %s"
-            cursor.execute(select_player_sql, (player_name,))
+            # 1. Resolve (or create) player
+            cursor.execute("SELECT PLAYER_ID FROM player WHERE PLAYER_NAME = %s", (player_name,))
             row = cursor.fetchone()
             if row:
-                # Depending on your DB connector, row may be a tuple or dict.
                 player_id = row[0] if isinstance(row, tuple) else row['PLAYER_ID']
             else:
                 player_id = generate_id('pl_')
-                insert_player_sql = "INSERT INTO player (PLAYER_ID, PLAYER_NAME) VALUES (%s, %s)"
-                cursor.execute(insert_player_sql, (player_id, player_name))
-            
-            # Insert into player_stats to associate the player with the stats record.
-            insert_player_stats_sql = """
-                INSERT INTO player_stats (STATS_ID, PLAYER_ID)
-                VALUES (%s, %s)
-            """
-            cursor.execute(insert_player_stats_sql, (stats_id, player_id))
+                cursor.execute("INSERT INTO player (PLAYER_ID, PLAYER_NAME) VALUES (%s, %s)", (player_id, player_name))
 
-            # Insert into stat_match to link the stats record with the given match.
-            insert_stat_match_sql = """
-                INSERT INTO stat_match (STATS_ID, MATCH_ID)
-                VALUES (%s, %s)
-            """
-            cursor.execute(insert_stat_match_sql, (stats_id, match_id))
-        
+            # 2. If STATS_ID provided (trigger already created placeholder) -> UPDATE stats
+            if provided_stats_id:
+                # Update existing stats row (ignore if not found)
+                update_sql = """
+                    UPDATE stats
+                    SET GOALS=%s, ASSISTS=%s, FOULS=%s, YELLOW_CARDS=%s, RED_CARDS=%s, MINUTES_PLAYED=%s
+                    WHERE STATS_ID = %s
+                """
+                cursor.execute(update_sql, (goals, assists, fouls, yellow_cards, red_cards, minutes_played, provided_stats_id))
+                stats_id = provided_stats_id
+            else:
+                # Need a new stats row (new player manually added in UI)
+                # Prefer numeric sequence used by trigger for consistency
+                try:
+                    cursor.execute("INSERT INTO stats_id_seq VALUES (NULL)")
+                    cursor.execute("SELECT LAST_INSERT_ID()")
+                    stats_id_row = cursor.fetchone()
+                    stats_id = str(stats_id_row[0] if isinstance(stats_id_row, tuple) else stats_id_row['LAST_INSERT_ID()'])
+                except Exception:
+                    stats_id = generate_id('st_')  # fallback
+                cursor.execute(
+                    """INSERT INTO stats (STATS_ID, GOALS, ASSISTS, FOULS, YELLOW_CARDS, RED_CARDS, MINUTES_PLAYED)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s)""",
+                    (stats_id, goals, assists, fouls, yellow_cards, red_cards, minutes_played)
+                )
+
+            # 3. Ensure linkage player_stats
+            cursor.execute(
+                "SELECT 1 FROM player_stats WHERE PLAYER_ID=%s AND STATS_ID=%s",
+                (player_id, stats_id)
+            )
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO player_stats (STATS_ID, PLAYER_ID) VALUES (%s,%s)",
+                    (stats_id, player_id)
+                )
+
+            # 4. Ensure linkage stat_match
+            cursor.execute(
+                "SELECT 1 FROM stat_match WHERE STATS_ID=%s AND MATCH_ID=%s",
+                (stats_id, match_id)
+            )
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO stat_match (STATS_ID, MATCH_ID) VALUES (%s,%s)",
+                    (stats_id, match_id)
+                )
+
         db.commit()
-        return jsonify({"message": "Player performance records inserted successfully"}), 201
+        return jsonify({"message": "Player performance records upserted successfully"}), 201
 
     except Exception as e:
         db.rollback()

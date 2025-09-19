@@ -30,57 +30,22 @@ USE p_dbms;
 DROP TABLE IF EXISTS `coach_team`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */
 ;
-/*!50503 SET character_set_client = utf8mb4 */
-;
-CREATE TABLE `coach_team` (
-    `COACH_ID` varchar(20) NOT NULL,
-    `TEAM_ID` varchar(20) NOT NULL,
-    PRIMARY KEY (`COACH_ID`, `TEAM_ID`),
-    KEY `TEAM_ID` (`TEAM_ID`),
-    CONSTRAINT `coach_team_ibfk_1` FOREIGN KEY (`COACH_ID`) REFERENCES `coach` (`COACH_ID`),
-    CONSTRAINT `coach_team_ibfk_2` FOREIGN KEY (`TEAM_ID`) REFERENCES `team` (`TEAM_ID`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */
-;
 
---
--- Dumping data for table `coach_team`
---
 
-LOCK TABLES `coach_team` WRITE;
-/*!40000 ALTER TABLE `coach_team` DISABLE KEYS */
-;
-INSERT INTO
-    `coach_team`
-VALUES (101, 'tm01'),
-    (102, 'tm02'),
-    (103, 'tm03'),
-    (104, 'tm04'),
-    (105, 'tm05');
-/*!40000 ALTER TABLE `coach_team` ENABLE KEYS */
-;
-UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
-;
 
--- (removed stray DELIMITER directives here; delimiters are set only around stored routines later in the file)
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */
 ;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
 ;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
-;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 ;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */
 ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */
-;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
-;
 
--- Dump completed on 2025-08-17 12:23:27
 
 -- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
 --
@@ -100,9 +65,7 @@ UNLOCK TABLES;
 ;
 /*!40103 SET TIME_ZONE='+00:00' */
 ;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */
-;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */
+
 ;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */
 ;
@@ -146,9 +109,7 @@ UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
 ;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */
-;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
+
 ;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
 ;
@@ -307,13 +268,60 @@ CREATE TABLE `injury` (
 --
 
 LOCK TABLES `injury` WRITE;
-INSERT INTO `injury` (`INJURY_CASE_ID`,`MEDICAL_REPORT`,`RESTING_PERIOD`,`INJURY_DATE`,`SEVERITY`,`TYPE`) VALUES
-    ('401','Hamstring strain',21,'2023-10-15','Mild','Muscle'),
-    ('402','ACL tear',180,'2023-09-01','Severe','Ligament'),
-    ('403','Ankle sprain',14,'2023-11-05','Mild','Joint'),
-    ('404','Concussion',10,'2023-10-28','Moderate','Head'),
-    ('405','Fractured metatarsal',90,'2023-11-10','Severe','Bone');
+/*!40000 ALTER TABLE `injury` DISABLE KEYS */
+;
+INSERT INTO
+    `injury`
+VALUES (
+        401,
+        'Hamstring strain',
+        21,
+        '2023-10-15',
+        'Mild',
+        'Muscle'
+    ),
+    (
+        402,
+        'ACL tear',
+        180,
+        '2023-09-01',
+        'Severe',
+        'Ligament'
+    ),
+    (
+        403,
+        'Ankle sprain',
+        14,
+        '2023-11-05',
+        'Mild',
+        'Joint'
+    ),
+    (
+        404,
+        'Concussion',
+        10,
+        '2023-10-28',
+        'Moderate',
+        'Head'
+    ),
+    (
+        405,
+        'Fractured metatarsal',
+        90,
+        '2023-11-10',
+        'Severe',
+        'Bone'
+    );
+/*!40000 ALTER TABLE `injury` ENABLE KEYS */
+;
 UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
+;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */
+;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
+;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
 ;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
@@ -379,10 +387,47 @@ CREATE TABLE `match` (
 --
 
 LOCK TABLES `match` WRITE;
--- Optional: seed sample matches (ensure columns align)
--- INSERT INTO `match` (`MATCH_ID`,`TEAM_ONE`,`TEAM_TWO`,`STADIUM`,`WINNING_TEAM`) VALUES
---   ('504','Blue Tigers','Green Eagles','United Ground','Green Eagles'),
---   ('505','Yellow Panthers','Black Wolves','Royal Field','Yellow Panthers');
+/*!40000 ALTER TABLE `match` DISABLE KEYS */
+;
+INSERT INTO
+    `match`
+VALUES (
+        501,
+        'Red Lions',
+        'Blue Tigers',
+        'National Arena',
+        'Red Lions'
+    ),
+    (
+        502,
+        'Green Eagles',
+        'Yellow Panthers',
+        'City Stadium',
+        'Draw'
+    ),
+    (
+        503,
+        'Black Wolves',
+        'Red Lions',
+        'Olympic Park',
+        'Red Lions'
+    ),
+    (
+        504,
+        'Blue Tigers',
+        'Green Eagles',
+        'United Ground',
+        'Green Eagles'
+    ),
+    (
+        505,
+        'Yellow Panthers',
+        'Black Wolves',
+        'Royal Field',
+        'Yellow Panthers'
+    );
+/*!40000 ALTER TABLE `match` ENABLE KEYS */
+;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
 ;
@@ -1222,28 +1267,6 @@ UNLOCK TABLES;
 ;
 
 --
--- Table structure for table `training`
---
-
-DROP TABLE IF EXISTS `training`;
-CREATE TABLE `training` (
-        `training_id` INT AUTO_INCREMENT PRIMARY KEY,
-        `time_of_day` ENUM('Morning','Afternoon','Evening') NOT NULL,
-        `type` VARCHAR(50) NOT NULL,
-        `focus` VARCHAR(100) NOT NULL,
-        `activities` JSON DEFAULT NULL,
-        `intensity` ENUM('High','Medium','Low') NOT NULL,
-        `duration` VARCHAR(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Seed session types (IDs 1..3)
-INSERT INTO `training` (`training_id`,`time_of_day`,`type`,`focus`,`activities`,`intensity`,`duration`) VALUES
-    (1,'Morning','Physical','Strength & Conditioning', JSON_ARRAY('Box jumps','Sprints','Weight training'),'High','90 mins'),
-    (2,'Afternoon','Tactical','Team Coordination', JSON_ARRAY('Formation drills','Set pieces','Match simulation'),'Medium','120 mins'),
-    (3,'Evening','Mental','Recovery & Focus', JSON_ARRAY('Stretching','Video analysis','Mindfulness'),'Low','60 mins');
-
-
---
 -- Table structure for table `training_records`
 --
 
@@ -1252,21 +1275,14 @@ DROP TABLE IF EXISTS `training_records`;
 ;
 /*!50503 SET character_set_client = utf8mb4 */
 ;
-CREATE TABLE `training_records` (
-    `training_id` INT NOT NULL,
-    `player_id` VARCHAR(20) NOT NULL,
-    `day` DATE NOT NULL,
-    `distance_covered` DECIMAL(5,2) DEFAULT NULL,
-    `sprint_count` INT DEFAULT NULL,
-    `shots_on_target` INT DEFAULT NULL,
-    `duration` TIME DEFAULT NULL,
-    `passing_accuracy` INT DEFAULT NULL,
-    PRIMARY KEY (`training_id`,`player_id`,`day`),
-    CONSTRAINT `fk_records_training` FOREIGN KEY (`training_id`)
-      REFERENCES `training`(`training_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT `fk_records_player` FOREIGN KEY (`player_id`)
-      REFERENCES `player`(`PLAYER_ID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+create table training_records (
+    `PLAYER_ID` varchar(20) NOT NULL,
+    `TRAINING_ID` varchar(20) NOT NULL,
+    PRIMARY KEY (`PLAYER_ID`, `TRAINING_ID`),
+    KEY `TRAINING_ID` (`TRAINING_ID`),
+    CONSTRAINT `training_records_ibfk_1` FOREIGN KEY (`PLAYER_ID`) REFERENCES `player` (`PLAYER_ID`),
+    CONSTRAINT `training_records_ibfk_2` FOREIGN KEY (`TRAINING_ID`) REFERENCES `training` (`TRAINING_ID`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */
 ;
 
@@ -1274,54 +1290,24 @@ CREATE TABLE `training_records` (
 -- Dumping data for table `training_records`
 --
 
--- Build a derived 'dates' table with the past 30 days (explicit UNION ALL to avoid WITH RECURSIVE)
-INSERT INTO `training_records` (`training_id`,`player_id`,`day`,`distance_covered`,`sprint_count`,`shots_on_target`,`duration`,`passing_accuracy`)
-SELECT
-        CASE WHEN MOD(d.n,3)=0 THEN 1 WHEN MOD(d.n,3)=1 THEN 2 ELSE 3 END AS training_id,
-        p.PLAYER_ID,
-        d.day,
-        ROUND(3 + RAND(CONCAT(p.PLAYER_ID,d.day)) * 7,2) AS distance_covered,
-        FLOOR(5 + RAND(CONCAT('s',p.PLAYER_ID,d.day)) * 15) AS sprint_count,
-        FLOOR(RAND(CONCAT('t',p.PLAYER_ID,d.day)) * 5) AS shots_on_target,
-        CASE WHEN MOD(d.n,3)=0 THEN '01:30:00' WHEN MOD(d.n,3)=1 THEN '02:00:00' ELSE '01:00:00' END AS duration,
-        FLOOR(60 + RAND(CONCAT('pa',p.PLAYER_ID,d.day)) * 36) AS passing_accuracy
-FROM (
-    SELECT CURDATE() AS day, 0 AS n
-    UNION ALL SELECT CURDATE() - INTERVAL 1 DAY, 1
-    UNION ALL SELECT CURDATE() - INTERVAL 2 DAY, 2
-    UNION ALL SELECT CURDATE() - INTERVAL 3 DAY, 3
-    UNION ALL SELECT CURDATE() - INTERVAL 4 DAY, 4
-    UNION ALL SELECT CURDATE() - INTERVAL 5 DAY, 5
-    UNION ALL SELECT CURDATE() - INTERVAL 6 DAY, 6
-    UNION ALL SELECT CURDATE() - INTERVAL 7 DAY, 7
-    UNION ALL SELECT CURDATE() - INTERVAL 8 DAY, 8
-    UNION ALL SELECT CURDATE() - INTERVAL 9 DAY, 9
-    UNION ALL SELECT CURDATE() - INTERVAL 10 DAY, 10
-    UNION ALL SELECT CURDATE() - INTERVAL 11 DAY, 11
-    UNION ALL SELECT CURDATE() - INTERVAL 12 DAY, 12
-    UNION ALL SELECT CURDATE() - INTERVAL 13 DAY, 13
-    UNION ALL SELECT CURDATE() - INTERVAL 14 DAY, 14
-    UNION ALL SELECT CURDATE() - INTERVAL 15 DAY, 15
-    UNION ALL SELECT CURDATE() - INTERVAL 16 DAY, 16
-    UNION ALL SELECT CURDATE() - INTERVAL 17 DAY, 17
-    UNION ALL SELECT CURDATE() - INTERVAL 18 DAY, 18
-    UNION ALL SELECT CURDATE() - INTERVAL 19 DAY, 19
-    UNION ALL SELECT CURDATE() - INTERVAL 20 DAY, 20
-    UNION ALL SELECT CURDATE() - INTERVAL 21 DAY, 21
-    UNION ALL SELECT CURDATE() - INTERVAL 22 DAY, 22
-    UNION ALL SELECT CURDATE() - INTERVAL 23 DAY, 23
-    UNION ALL SELECT CURDATE() - INTERVAL 24 DAY, 24
-    UNION ALL SELECT CURDATE() - INTERVAL 25 DAY, 25
-    UNION ALL SELECT CURDATE() - INTERVAL 26 DAY, 26
-    UNION ALL SELECT CURDATE() - INTERVAL 27 DAY, 27
-    UNION ALL SELECT CURDATE() - INTERVAL 28 DAY, 28
-    UNION ALL SELECT CURDATE() - INTERVAL 29 DAY, 29
-) d
-CROSS JOIN (
-        SELECT PLAYER_ID FROM `player` WHERE PLAYER_ID BETWEEN '1001' AND '1010'
-) p
-ORDER BY p.PLAYER_ID, d.day;
--- Note: original dump used LOCK/UNLOCK TABLES around this INSERT; removed for compatibility with piped import
+LOCK TABLES `training_records` WRITE;
+/*!40000 ALTER TABLE `training_records` DISABLE KEYS */
+;
+INSERT INTO
+    `training_records`
+VALUES (1001, 301),
+    (1006, 301),
+    (1002, 302),
+    (1007, 302),
+    (1003, 303),
+    (1008, 303),
+    (1004, 304),
+    (1009, 304),
+    (1005, 305),
+    (1010, 305);
+/*!40000 ALTER TABLE `training_records` ENABLE KEYS */
+;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
 ;
 
@@ -1342,19 +1328,131 @@ ORDER BY p.PLAYER_ID, d.day;
 
 -- Dump completed on 2025-08-17 12:23:28
 
--- Reporting views for frontend charts
-CREATE OR REPLACE VIEW training_last7 AS
-SELECT *
-    FROM training_records
- WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL 7 DAY);
+-- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+--
+-- Host: localhost    Database: p_dbms
+-- ------------------------------------------------------
+-- Server version	8.0.40
 
-CREATE OR REPLACE VIEW training_summary AS
-SELECT `day` AS DAY,
-             COUNT(*) AS session_count,
-             SUM(distance_covered) AS total_distance,
-             AVG(passing_accuracy) AS avg_accuracy
-    FROM training_records
- GROUP BY `day`;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */
+;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */
+;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */
+;
+/*!50503 SET NAMES utf8 */
+;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */
+;
+/*!40103 SET TIME_ZONE='+00:00' */
+;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */
+;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */
+;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */
+;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */
+;
+
+--
+-- Table structure for table `training`
+--
+
+DROP TABLE IF EXISTS `training`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */
+;
+/*!50503 SET character_set_client = utf8mb4 */
+;
+create table training (
+    `TRAINING_ID` varchar(20) NOT NULL,
+    `SESSION` varchar(100) DEFAULT NULL,
+    `DISTANCE_COVERED` decimal(5, 2) DEFAULT NULL,
+    `SPRINT_COUNT` int DEFAULT NULL,
+    `SHOTS_ON_TARGET` int DEFAULT NULL,
+    `DURATION` time DEFAULT NULL,
+    `PASSING_ACCURACY` int DEFAULT NULL,
+    PRIMARY KEY (`TRAINING_ID`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */
+;
+
+--
+-- Dumping data for table `training`
+--
+
+LOCK TABLES `training` WRITE;
+/*!40000 ALTER TABLE `training` DISABLE KEYS */
+;
+INSERT INTO
+    `training`
+VALUES (
+        301,
+        'Morning Session',
+        5.20,
+        25,
+        18,
+        '01:30:00',
+        85
+    ),
+    (
+        302,
+        'Afternoon Session',
+        6.80,
+        32,
+        22,
+        '02:00:00',
+        78
+    ),
+    (
+        303,
+        'Recovery Session',
+        3.50,
+        12,
+        10,
+        '01:00:00',
+        90
+    ),
+    (
+        304,
+        'Intensive Session',
+        8.10,
+        45,
+        30,
+        '02:30:00',
+        75
+    ),
+    (
+        305,
+        'Tactical Session',
+        4.70,
+        20,
+        15,
+        '01:45:00',
+        88
+    );
+/*!40000 ALTER TABLE `training` ENABLE KEYS */
+;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
+;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */
+;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
+;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
+;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
+;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */
+;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */
+;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
+;
+
+-- Dump completed on 2025-08-17 12:23:28
 
 --
 -- Additional table for user authentication system
@@ -1430,59 +1528,3 @@ UNLOCK TABLES;
 ;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
 ;
-
---
-DELIMITER $$
-
--- Procedure to fetch training sessions for the last N days
-DROP PROCEDURE IF EXISTS `sp_get_training_by_days`$$
-CREATE PROCEDURE `sp_get_training_by_days`(IN p_days INT)
-BEGIN
-    SELECT *
-        FROM training_records
-     WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL p_days DAY);
-END$$
-
--- Function to compute average passing accuracy over the last N days
-DROP FUNCTION IF EXISTS `fn_avg_accuracy`$$
-CREATE FUNCTION `fn_avg_accuracy`(p_days INT)
-RETURNS DECIMAL(5,2)
-DETERMINISTIC
-BEGIN
-    DECLARE result DECIMAL(5,2);
-    SELECT AVG(passing_accuracy)
-        INTO result
-        FROM training_records
-     WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL p_days DAY);
-    RETURN result;
-END$$
-
-DELIMITER ;
-
--- Metrics procedure used by backend for charts (optional env METRICS_PROCEDURE_NAME)
-DELIMITER $$
-DROP PROCEDURE IF EXISTS `sp_training_performance_metrics`$$
-CREATE PROCEDURE `sp_training_performance_metrics`(IN p_player_id VARCHAR(20))
-BEGIN
-    IF p_player_id IS NULL OR p_player_id = '' THEN
-        SELECT player_id,
-               `day`,
-               distance_covered,
-               passing_accuracy,
-               sprint_count,
-               shots_on_target
-          FROM training_records
-         ORDER BY `day` ASC;
-    ELSE
-        SELECT player_id,
-               `day`,
-               distance_covered,
-               passing_accuracy,
-               sprint_count,
-               shots_on_target
-          FROM training_records
-         WHERE player_id = p_player_id
-         ORDER BY `day` ASC;
-    END IF;
-END$$
-DELIMITER ;

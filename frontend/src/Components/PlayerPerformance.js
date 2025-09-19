@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
 import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
@@ -48,7 +46,7 @@ function PlayersPerformancePage() {
       setLoadingPlayers(true);
       setPlayerError(null);
       console.log('[PlayerPerformance] Fetching players for match', matchId);
-  const res = await fetch(`http://localhost:5000/player_performance/${matchId}`);
+  const res = await fetch(`http://localhost:5000/matches/${matchId}/players-stats`);
       if (!res.ok) throw new Error(`Fetch failed (${res.status})`);
       const data = await res.json();
       console.log('[PlayerPerformance] Raw response:', data);
