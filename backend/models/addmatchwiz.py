@@ -83,30 +83,54 @@ def get_team_players(team_id):
 
 @addmatchwiz_bp.route('/matches/<match_id>/players-stats', methods=['GET'])
 def get_players_stats_for_match(match_id):
-    """Return all players (both teams) participating in a match with any stats recorded for that match.
-    If a player has no stats yet, stats fields are zero and STATS_ID null."""
+    """Return one consolidated stats row per player for a given match.
+
+    Deduplication logic: If multiple stats rows exist for the same player & match (e.g. legacy
+    placeholder + inserted row), pick the 'best' one determined by a window ordering:
+        (GOALS + ASSISTS + FOULS + YELLOW_CARDS + RED_CARDS + MINUTES_PLAYED) DESC, STATS_ID DESC
+    This favors the row with actual data over an all‑zero placeholder, and then the latest id.
+
+    Also includes TEAM_NAME so frontend grouping avoids 'Unknown Team'. Players without any
+    stats row yet return zeros with NULL STATS_ID.
+    """
     db = get_db()
     cursor = db.cursor()
     try:
         sql = """
-            SELECT DISTINCT
-                   p.PLAYER_ID,
-                   p.PLAYER_NAME,
-                   s.STATS_ID,
-                   COALESCE(s.GOALS,0) AS GOALS,
-                   COALESCE(s.ASSISTS,0) AS ASSISTS,
-                   COALESCE(s.FOULS,0) AS FOULS,
-                   COALESCE(s.YELLOW_CARDS,0) AS YELLOW_CARDS,
-                   COALESCE(s.RED_CARDS,0) AS RED_CARDS,
-                   COALESCE(s.MINUTES_PLAYED,0) AS MINUTES_PLAYED
+            SELECT 
+                p.PLAYER_ID,
+                p.PLAYER_NAME,
+                agg.STATS_ID,
+                COALESCE(agg.GOALS,0) AS GOALS,
+                COALESCE(agg.ASSISTS,0) AS ASSISTS,
+                COALESCE(agg.FOULS,0) AS FOULS,
+                COALESCE(agg.YELLOW_CARDS,0) AS YELLOW_CARDS,
+                COALESCE(agg.RED_CARDS,0) AS RED_CARDS,
+                COALESCE(agg.MINUTES_PLAYED,0) AS MINUTES_PLAYED,
+                t.TEAM_NAME
             FROM team_match tm
             JOIN player_team pt ON tm.TEAM_ID = pt.TEAM_ID
+            JOIN team t ON t.TEAM_ID = pt.TEAM_ID
             JOIN player p ON pt.PLAYER_ID = p.PLAYER_ID
-            LEFT JOIN player_stats ps ON ps.PLAYER_ID = p.PLAYER_ID
-            LEFT JOIN stat_match sm ON sm.STATS_ID = ps.STATS_ID AND sm.MATCH_ID = %s
-            LEFT JOIN stats s ON s.STATS_ID = sm.STATS_ID
+            LEFT JOIN (
+                SELECT * FROM (
+                    SELECT ps.PLAYER_ID,
+                           st.STATS_ID,
+                           st.GOALS, st.ASSISTS, st.FOULS,
+                           st.YELLOW_CARDS, st.RED_CARDS, st.MINUTES_PLAYED,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY ps.PLAYER_ID
+                               ORDER BY (st.GOALS + st.ASSISTS + st.FOULS + st.YELLOW_CARDS + st.RED_CARDS + st.MINUTES_PLAYED) DESC,
+                                        CAST(st.STATS_ID AS UNSIGNED) DESC
+                           ) AS rn
+                    FROM stat_match sm
+                    JOIN stats st ON st.STATS_ID = sm.STATS_ID
+                    JOIN player_stats ps ON ps.STATS_ID = sm.STATS_ID
+                    WHERE sm.MATCH_ID = %s
+                ) ranked WHERE rn = 1
+            ) agg ON agg.PLAYER_ID = p.PLAYER_ID
             WHERE tm.MATCH_ID = %s
-            ORDER BY p.PLAYER_NAME
+            ORDER BY t.TEAM_NAME, p.PLAYER_NAME;
         """
         cursor.execute(sql, (match_id, match_id))
         rows = cursor.fetchall()
@@ -122,6 +146,7 @@ def get_players_stats_for_match(match_id):
                 'YELLOW_CARDS': int(r[6]) if r[6] is not None else 0,
                 'RED_CARDS': int(r[7]) if r[7] is not None else 0,
                 'MINUTES_PLAYED': int(r[8]) if r[8] is not None else 0,
+                'TEAM_NAME': r[9]
             })
         return jsonify(result), 200
     except Exception as e:

@@ -49,42 +49,11 @@ function MatchPage() {
     const t2 = (match.TEAM_TWO || '').trim();
     const teamOneScorers = [];
     const teamTwoScorers = [];
-    const unknown = [];
-
-    // First pass: push scorers that have an explicit team name
     list.forEach(s => {
-      const teamField = s.TEAM_NAME || s.TEAM || s.team || s.PLAYER_TEAM || s.player_team || '';
-      if (teamField === t1) teamOneScorers.push(s);
-      else if (teamField === t2) teamTwoScorers.push(s);
-      else unknown.push(s); // store for inference
+      const teamName = (s.TEAM_NAME || '').trim();
+      if (teamName === t1) teamOneScorers.push(s);
+      else if (teamName === t2) teamTwoScorers.push(s);
     });
-
-    // Infer totals from scorecard to intelligently assign unknown scorers
-    const t1GoalsTotal = parseInt(getTeamGoals(match, t1)) || 0;
-    const t2GoalsTotal = parseInt(getTeamGoals(match, t2)) || 0;
-    let t1Assigned = teamOneScorers.reduce((sum, s) => sum + (parseInt(s.GOALS) || 1), 0);
-    let t2Assigned = teamTwoScorers.reduce((sum, s) => sum + (parseInt(s.GOALS) || 1), 0);
-
-    // Distribute unknown scorers based on remaining goals needed; if no data, alternate
-    let alternateFlag = 0;
-    unknown.forEach(s => {
-      const value = parseInt(s.GOALS) || 1;
-      const t1Remaining = t1GoalsTotal - t1Assigned;
-      const t2Remaining = t2GoalsTotal - t2Assigned;
-      if (t1Remaining > 0 || t2Remaining > 0) {
-        if (t1Remaining > t2Remaining) {
-          teamOneScorers.push(s); t1Assigned += value; return;
-        }
-        if (t2Remaining > t1Remaining) {
-          teamTwoScorers.push(s); t2Assigned += value; return;
-        }
-        // Equal remaining -> alternate
-      }
-      if (alternateFlag % 2 === 0) { teamOneScorers.push(s); t1Assigned += value; }
-      else { teamTwoScorers.push(s); t2Assigned += value; }
-      alternateFlag++;
-    });
-
     return { teamOneScorers, teamTwoScorers };
   };
 
@@ -145,14 +114,22 @@ function MatchPage() {
   // handleAddMatch removed
 
   const handleDeleteMatch = async (id) => {
+    // Optimistic removal
+    const prev = matches;
+    setMatches(m => m.filter(mt => mt.MATCH_ID !== id));
     try {
-      const res = await fetch(`http://localhost:5000/matches/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete match");
-      fetchMatches(); // Refresh list after deleting
-    } catch (error) {
-      console.error("Error deleting match:", error);
+      const res = await fetch(`http://localhost:5000/matches/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || 'Failed to delete match');
+      }
+      // Clean ancillary state
+      setScorecards(s => { const copy={...s}; delete copy[id]; return copy; });
+      setScorers(s => { const copy={...s}; delete copy[id]; return copy; });
+    } catch (err) {
+      console.error('Delete failed:', err);
+      // Revert UI
+      setMatches(prev);
     }
   };
 

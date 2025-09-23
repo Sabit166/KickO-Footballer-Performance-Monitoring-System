@@ -59,7 +59,16 @@ function PlayersPerformancePage() {
         extracted = Object.values(data.teamPlayers).flat();
       }
       if (!Array.isArray(extracted)) extracted = [];
-      setPlayers(extracted);
+      // Safeguard: deduplicate by PLAYER_ID preferring row with higher activity metrics
+      const score = (r)=> (r.GOALS||0)+(r.ASSISTS||0)+(r.FOULS||0)+(r.YELLOW_CARDS||0)+(r.RED_CARDS||0)+(r.MINUTES_PLAYED||0);
+      const byId = {};
+      for (const rec of extracted) {
+        const id = rec.PLAYER_ID || rec.player_id || rec.id;
+        if (!id) continue;
+        if (!byId[id] || score(rec) > score(byId[id])) byId[id] = rec;
+      }
+      const deduped = Object.values(byId);
+      setPlayers(deduped);
       if (extracted.length === 0) {
         console.warn('[PlayerPerformance] No players extracted. Check backend payload keys.');
       }
