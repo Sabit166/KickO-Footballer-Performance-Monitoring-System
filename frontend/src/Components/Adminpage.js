@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LogoutIcon from '@mui/icons-material/Logout';
+import MenuIcon from '@mui/icons-material/Menu';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     Drawer,
@@ -12,7 +13,8 @@ import {
     Typography,
     Box,
     ListItemIcon,
-    Collapse
+    Collapse,
+    IconButton
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from '@mui/icons-material';
 
@@ -20,8 +22,10 @@ const drawerWidth = 240;
 
 export default function Adminpage() {
     const location = useLocation();
-        const navigate = useNavigate();
+    const navigate = useNavigate();
     const { role, teamid } = location.state || {};
+    const [drawerOpen, setDrawerOpen] = useState(true);
+    const hideTimeoutRef = useRef(null);
 
     // Fallback: Try to get data from localStorage if not in state
     let finalRole = role;
@@ -46,19 +50,111 @@ export default function Adminpage() {
 
     const [openSubmenu, setOpenSubmenu] = useState({});
 
+    // Auto-hide drawer after 3 seconds on page load
+    useEffect(() => {
+        const autoHideTimer = setTimeout(() => {
+            setDrawerOpen(false);
+        }, 3000);
+
+        return () => clearTimeout(autoHideTimer);
+    }, []);
+
+    // Function to start auto-hide timer
+    const startAutoHideTimer = () => {
+        // Clear existing timer
+        if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current);
+        }
+
+        // Start new timer
+        hideTimeoutRef.current = setTimeout(() => {
+            setDrawerOpen(false);
+        }, 3000);
+    };
+
+    // Function to clear auto-hide timer
+    const clearAutoHideTimer = () => {
+        if (hideTimeoutRef.current) {
+            clearTimeout(hideTimeoutRef.current);
+            hideTimeoutRef.current = null;
+        }
+    };
+
+    // Handle mouse enter on drawer (pause auto-hide)
+    const handleDrawerMouseEnter = () => {
+        clearAutoHideTimer();
+    };
+
+    // Handle mouse leave from drawer (resume auto-hide)
+    const handleDrawerMouseLeave = () => {
+        if (drawerOpen) {
+            startAutoHideTimer();
+        }
+    };
+
+    // Function to handle navigation clicks
+    const handleNavigationClick = () => {
+        // If drawer is closed, open it and start auto-hide timer
+        if (!drawerOpen) {
+            setDrawerOpen(true);
+            // Use setTimeout to ensure state is updated before starting timer
+            setTimeout(() => {
+                startAutoHideTimer();
+            }, 100);
+        } else {
+            // If drawer is already open, start auto-hide timer
+            startAutoHideTimer();
+        }
+    };
+
+    // Clear timer on component unmount
+    useEffect(() => {
+        return () => {
+            if (hideTimeoutRef.current) {
+                clearTimeout(hideTimeoutRef.current);
+            }
+        };
+    }, []);
+
     const handleSubmenuToggle = (itemText) => {
         setOpenSubmenu(prev => ({
             ...prev,
             [itemText]: !prev[itemText]
         }));
+
+        // If drawer is closed, open it and start auto-hide timer
+        if (!drawerOpen) {
+            setDrawerOpen(true);
+            // Use setTimeout to ensure state is updated before starting timer
+            setTimeout(() => {
+                startAutoHideTimer();
+            }, 100);
+        } else {
+            // If drawer is already open, start auto-hide timer
+            startAutoHideTimer();
+        }
     };
 
     const handleLogout = () => {
         // Clear user data from localStorage
         localStorage.removeItem('user');
-        
+
         // Navigate to homepage
         navigate('/');
+    };
+
+    const toggleDrawer = () => {
+        setDrawerOpen(!drawerOpen);
+
+        // If opening the drawer, start auto-hide timer
+        if (!drawerOpen) {
+            startAutoHideTimer();
+        } else {
+            // If closing manually, clear the timer
+            if (hideTimeoutRef.current) {
+                clearTimeout(hideTimeoutRef.current);
+            }
+        }
     };
 
     return (
@@ -66,33 +162,163 @@ export default function Adminpage() {
             {/* Top AppBar */}
             <AppBar
                 position="fixed"
+                elevation={0}
                 sx={{
                     zIndex: (theme) => theme.zIndex.drawer + 1,
-                    backgroundColor: '#0d1017',
-                    color: '#ffffff',
-                    borderBottom: '.5px solid #524b4bff',
+                    background: 'linear-gradient(135deg, rgba(13, 16, 23, 0.95) 0%, rgba(13, 16, 23, 0.98) 100%)',
+                    backdropFilter: 'blur(20px)',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                 }}
             >
-                <Toolbar>
-                    <Typography variant="h6" noWrap component="div" sx={{ color: '#ffffff' }}>
-                        {safeRole} and Team ID: {safeTeamId}
-                    </Typography>
+                <Toolbar sx={{ minHeight: '64px', px: 3 }}>
+                    <IconButton
+                        color="inherit"
+                        aria-label="toggle drawer"
+                        onClick={toggleDrawer}
+                        sx={{
+                            mr: 3,
+                            color: '#ffffff',
+                            borderRadius: '12px',
+                            padding: '10px',
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                                transform: 'scale(1.05)',
+                            },
+                        }}
+                    >
+                        <MenuIcon sx={{ fontSize: '24px' }} />
+                    </IconButton>
+
+                    <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <img
+                                src="/kicko.png"
+                                alt="KickO Logo"
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '8px',
+                                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))'
+                                }}
+                            />
+                            <Typography
+                                variant="h5"
+                                component="div"
+                                sx={{
+                                    color: '#ffffff',
+                                    fontWeight: 600,
+                                    letterSpacing: '-0.5px',
+                                    background: 'linear-gradient(135deg, #ffffff 0%, #e1e5e9 100%)',
+                                    backgroundClip: 'text',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                }}
+                            >
+                                KickO
+                            </Typography>
+                        </Box>
+
+                        <Box
+                            sx={{
+                                ml: 'auto',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 2,
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                borderRadius: '16px',
+                                padding: '8px 16px',
+                                border: '1px solid rgba(255, 255, 255, 0.1)',
+                            }}
+                        >
+                            <Box sx={{ textAlign: 'right' }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 500,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                    }}
+                                >
+                                    Role
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        color: '#ffffff',
+                                        fontWeight: 600,
+                                        fontSize: '0.9rem',
+                                        textTransform: 'capitalize',
+                                    }}
+                                >
+                                    {safeRole}
+                                </Typography>
+                            </Box>
+
+                            <Box
+                                sx={{
+                                    height: '32px',
+                                    width: '1px',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)'
+                                }}
+                            />
+
+                            <Box sx={{ textAlign: 'right' }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        color: 'rgba(255, 255, 255, 0.7)',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 500,
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px',
+                                    }}
+                                >
+                                    Team ID
+                                </Typography>
+                                <Typography
+                                    variant="body1"
+                                    sx={{
+                                        color: '#4fc3f7',
+                                        fontWeight: 700,
+                                        fontSize: '0.9rem',
+                                        fontFamily: 'monospace',
+                                    }}
+                                >
+                                    {safeTeamId}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Box>
                 </Toolbar>
             </AppBar>
 
             {/* Sidebar Drawer */}
             <Drawer
-                variant="permanent"
+                variant="temporary"
+                open={drawerOpen}
+                onClose={() => setDrawerOpen(false)}
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                }}
                 sx={{
                     width: drawerWidth,
                     flexShrink: 0,
                     [`& .MuiDrawer-paper`]: {
                         width: drawerWidth,
                         boxSizing: "border-box",
-                        backgroundColor: '#0d1017',
+                        backgroundColor: 'rgba(13, 16, 23, 0.52)', // Transparent black
+                        backdropFilter: 'blur(10px)',
                         color: '#ffffff',
-                        borderRight: '1px solid #333333'
+                        borderRight: '1px solid rgba(255, 255, 255, 0.1)',
                     },
+                }}
+                PaperProps={{
+                    onMouseEnter: handleDrawerMouseEnter,
+                    onMouseLeave: handleDrawerMouseLeave,
                 }}
             >
                 <Toolbar />
@@ -101,21 +327,21 @@ export default function Adminpage() {
                         {[
                             { text: "Dashboard", path: ".", icon: '/football.png' },
                             {
-                                text: "Manage Team", path: "player", icon: '/logo192.png', submenu: {
+                                text: "Manage Team", path: "player", icon: '/training.png', submenu: {
                                     items: [
-                                        { text: "Player", path: "player", icon: '/logo192.png' },
-                                        { text: "Coach", path: "addteam", icon: '/logo192.png' },
-                                        { text: "Physician", path: "addmanager", icon: '/logo192.png' },
-                                        { text: "Match", path: "match", icon: '/logo192.png' }  // New submenu item
+                                        { text: "Player", path: "player", icon: '/shoot.png' },
+                                        { text: "Coach", path: "addteam", icon: '/coach.png' },
+                                        { text: "Physician", path: "addmanager", icon: '/doctor.png' },
+                                        { text: "Match", path: "match", icon: '/field.png' }  // New submenu item
                                     ]
                                 }
                             },
                             {
-                                text: "Report", path: "report", icon: '/logo192.png', submenu: {
+                                text: "Report", path: "report", icon: '/document.png', submenu: {
                                     items: [
-                                        { text: "Player Report", path: "playerperformance", icon: '/logo192.png' },
-                                        { text: "Team Report", path: "teamperformance", icon: '/logo192.png' },
-                                        { text: "Training Dashboard", path: "training", icon: '/logo192.png' }
+                                        { text: "Player Report", path: "playerperformance", icon: '/performance.png' },
+                                        { text: "Team Report", path: "teamperformance", icon: '/training.png' },
+                                        { text: "Training Dashboard", path: "training", icon: '/soccer.png' }
                                     ]
                                 }
                             }
@@ -140,7 +366,7 @@ export default function Adminpage() {
                                             <ListItemButton
                                                 component={hasSubmenu ? 'div' : Link}
                                                 to={hasSubmenu ? undefined : item.path}
-                                                onClick={hasSubmenu ? () => handleSubmenuToggle(item.text) : undefined}
+                                                onClick={hasSubmenu ? () => handleSubmenuToggle(item.text) : handleNavigationClick}
                                                 sx={{
                                                     height: '30px',
                                                     width: '87%',
@@ -150,26 +376,29 @@ export default function Adminpage() {
                                                     border: isActive ? 'none' : 'none',
                                                     borderRadius: '8px',
                                                     color: '#ffffff',
+                                                    justifyContent: 'flex-start',
                                                     '&:hover': {
                                                         backgroundColor: isActive ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
                                                     },
                                                 }}
                                             >
-                                                <ListItemIcon sx={{ minWidth: '30px' }}>
+                                                <ListItemIcon sx={{ minWidth: '30px', justifyContent: 'center' }}>
                                                     <img src={item.icon} alt="icon" style={{ width: '20px', height: '20px' }} />
                                                 </ListItemIcon>
-                                                <ListItemText
-                                                    primary={item.text}
-                                                    sx={{
-                                                        '& .MuiListItemText-primary': {
-                                                            color: isActive ? '#ffffff' : '#ffffff',
-                                                            fontWeight: isActive ? 500 : 400,
-                                                        }
-                                                    }}
-                                                />
-                                                {hasSubmenu && (
-                                                    isSubmenuOpen ? <ExpandLess sx={{ color: '#ffffff' }} /> : <ExpandMore sx={{ color: '#ffffff' }} />
-                                                )}
+                                                <>
+                                                    <ListItemText
+                                                        primary={item.text}
+                                                        sx={{
+                                                            '& .MuiListItemText-primary': {
+                                                                color: isActive ? '#ffffff' : '#ffffff',
+                                                                fontWeight: isActive ? 500 : 400,
+                                                            }
+                                                        }}
+                                                    />
+                                                    {hasSubmenu && (
+                                                        isSubmenuOpen ? <ExpandLess sx={{ color: '#ffffff' }} /> : <ExpandMore sx={{ color: '#ffffff' }} />
+                                                    )}
+                                                </>
                                             </ListItemButton>
                                         </ListItem>
 
@@ -183,6 +412,7 @@ export default function Adminpage() {
                                                                 <ListItemButton
                                                                     component={Link}
                                                                     to={subItem.path}
+                                                                    onClick={handleNavigationClick}
                                                                     sx={{
                                                                         height: '28px',
                                                                         width: '80%',
@@ -222,10 +452,13 @@ export default function Adminpage() {
                             })}
 
 
-                            {/* Logout menu item at the bottom of sidebar */}
+                        {/* Logout menu item at the bottom of sidebar */}
                         <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'center', marginTop: 'auto' }}>
                             <ListItemButton
-                                onClick={handleLogout}
+                                onClick={() => {
+                                    handleLogout();
+                                    handleNavigationClick();
+                                }}
                                 sx={{
                                     height: '30px',
                                     width: '87%',
@@ -234,12 +467,13 @@ export default function Adminpage() {
                                     backgroundColor: 'transparent',
                                     borderRadius: '8px',
                                     color: '#ffffff',
+                                    justifyContent: 'flex-start',
                                     '&:hover': {
                                         backgroundColor: 'rgba(255, 255, 255, 0.1)',
                                     },
                                 }}
                             >
-                                <ListItemIcon sx={{ minWidth: '30px' }}>
+                                <ListItemIcon sx={{ minWidth: '30px', justifyContent: 'center' }}>
                                     <LogoutIcon sx={{ color: '#ffffff', width: '20px', height: '20px' }} />
                                 </ListItemIcon>
                                 <ListItemText
@@ -266,6 +500,7 @@ export default function Adminpage() {
                     color: "#ffffff",
                     p: 3,
                     minHeight: '100vh',
+                    width: '100%', // Always take full width
                 }}
             >
                 <Toolbar /> {/* This creates the spacing for the fixed AppBar */}
