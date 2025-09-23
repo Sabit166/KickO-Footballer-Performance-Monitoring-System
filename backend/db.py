@@ -7,7 +7,7 @@ def get_db():
         g.db = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="yourpass",
+            password="root",
             database="p_dbms",
             charset="utf8mb4",
             use_unicode=True
