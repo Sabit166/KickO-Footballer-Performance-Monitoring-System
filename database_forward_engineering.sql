@@ -1528,3 +1528,362 @@ UNLOCK TABLES;
 ;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
 ;
+
+DROP TABLE IF EXISTS `training_records`;
+DROP TABLE IF EXISTS `training`;
+
+-- Disable foreign key checks temporarily to avoid constraint conflicts
+SET FOREIGN_KEY_CHECKS = 0;
+CREATE TABLE `training` (
+        `training_id` VARCHAR(20) PRIMARY KEY,
+        `time_of_day` ENUM('Morning','Afternoon','Evening') NOT NULL,
+        `type` VARCHAR(50) NOT NULL,
+        `focus` VARCHAR(100) NOT NULL,
+        `activities` JSON DEFAULT NULL,
+        `intensity` ENUM('High','Medium','Low') NOT NULL,
+        `duration` VARCHAR(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Create sequence-like table for training_id generation
+DROP TABLE IF EXISTS `training_sequence`;
+CREATE TABLE `training_sequence` (
+    `next_val` INT DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+INSERT INTO `training_sequence` VALUES (4); -- Start from 4 since we'll insert TRN001, TRN002, TRN003
+
+-- Seed session types (VARCHAR IDs with sequence pattern)
+INSERT INTO `training` (`training_id`,`time_of_day`,`type`,`focus`,`activities`,`intensity`,`duration`) VALUES
+    ('TRN001','Morning','Physical','Strength & Conditioning', JSON_ARRAY('Box jumps','Sprints','Weight training'),'High','90 mins'),
+    ('TRN002','Afternoon','Tactical','Team Coordination', JSON_ARRAY('Formation drills','Set pieces','Match simulation'),'Medium','120 mins'),
+    ('TRN003','Evening','Mental','Recovery & Focus', JSON_ARRAY('Stretching','Video analysis','Mindfulness'),'Low','60 mins');
+
+
+--
+-- Table structure for table `training_records`
+--
+
+DROP TABLE IF EXISTS `training_records`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */
+;
+/*!50503 SET character_set_client = utf8mb4 */
+;
+CREATE TABLE `training_records` (
+    `training_id` VARCHAR(20) NOT NULL,
+    `player_id` VARCHAR(20) NOT NULL,
+    `day` DATE NOT NULL,
+    `distance_covered` DECIMAL(5,2) DEFAULT NULL,
+    `sprint_count` INT DEFAULT NULL,
+    `shots_on_target` INT DEFAULT NULL,
+    `duration` TIME DEFAULT NULL,
+    `passing_accuracy` INT DEFAULT NULL,
+    PRIMARY KEY (`training_id`,`player_id`,`day`),
+    CONSTRAINT `fk_records_training` FOREIGN KEY (`training_id`)
+      REFERENCES `training`(`training_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT `fk_records_player` FOREIGN KEY (`player_id`)
+      REFERENCES `player`(`PLAYER_ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */
+;
+
+--
+-- Dumping data for table `training_records`
+--
+
+-- Build a derived 'dates' table with the past 30 days (explicit UNION ALL to avoid WITH RECURSIVE)
+INSERT INTO `training_records` (`training_id`,`player_id`,`day`,`distance_covered`,`sprint_count`,`shots_on_target`,`duration`,`passing_accuracy`)
+SELECT
+        CASE WHEN MOD(d.n,3)=0 THEN 'TRN001' WHEN MOD(d.n,3)=1 THEN 'TRN002' ELSE 'TRN003' END AS training_id,
+        p.PLAYER_ID,
+        d.day,
+        ROUND(3 + RAND(CONCAT(p.PLAYER_ID,d.day)) * 7,2) AS distance_covered,
+        FLOOR(5 + RAND(CONCAT('s',p.PLAYER_ID,d.day)) * 15) AS sprint_count,
+        FLOOR(RAND(CONCAT('t',p.PLAYER_ID,d.day)) * 5) AS shots_on_target,
+        CASE WHEN MOD(d.n,3)=0 THEN '01:30:00' WHEN MOD(d.n,3)=1 THEN '02:00:00' ELSE '01:00:00' END AS duration,
+        FLOOR(60 + RAND(CONCAT('pa',p.PLAYER_ID,d.day)) * 36) AS passing_accuracy
+FROM (
+    SELECT CURDATE() AS day, 0 AS n
+    UNION ALL SELECT CURDATE() - INTERVAL 1 DAY, 1
+    UNION ALL SELECT CURDATE() - INTERVAL 2 DAY, 2
+    UNION ALL SELECT CURDATE() - INTERVAL 3 DAY, 3
+    UNION ALL SELECT CURDATE() - INTERVAL 4 DAY, 4
+    UNION ALL SELECT CURDATE() - INTERVAL 5 DAY, 5
+    UNION ALL SELECT CURDATE() - INTERVAL 6 DAY, 6
+    UNION ALL SELECT CURDATE() - INTERVAL 7 DAY, 7
+    UNION ALL SELECT CURDATE() - INTERVAL 8 DAY, 8
+    UNION ALL SELECT CURDATE() - INTERVAL 9 DAY, 9
+    UNION ALL SELECT CURDATE() - INTERVAL 10 DAY, 10
+    UNION ALL SELECT CURDATE() - INTERVAL 11 DAY, 11
+    UNION ALL SELECT CURDATE() - INTERVAL 12 DAY, 12
+    UNION ALL SELECT CURDATE() - INTERVAL 13 DAY, 13
+    UNION ALL SELECT CURDATE() - INTERVAL 14 DAY, 14
+    UNION ALL SELECT CURDATE() - INTERVAL 15 DAY, 15
+    UNION ALL SELECT CURDATE() - INTERVAL 16 DAY, 16
+    UNION ALL SELECT CURDATE() - INTERVAL 17 DAY, 17
+    UNION ALL SELECT CURDATE() - INTERVAL 18 DAY, 18
+    UNION ALL SELECT CURDATE() - INTERVAL 19 DAY, 19
+    UNION ALL SELECT CURDATE() - INTERVAL 20 DAY, 20
+    UNION ALL SELECT CURDATE() - INTERVAL 21 DAY, 21
+    UNION ALL SELECT CURDATE() - INTERVAL 22 DAY, 22
+    UNION ALL SELECT CURDATE() - INTERVAL 23 DAY, 23
+    UNION ALL SELECT CURDATE() - INTERVAL 24 DAY, 24
+    UNION ALL SELECT CURDATE() - INTERVAL 25 DAY, 25
+    UNION ALL SELECT CURDATE() - INTERVAL 26 DAY, 26
+    UNION ALL SELECT CURDATE() - INTERVAL 27 DAY, 27
+    UNION ALL SELECT CURDATE() - INTERVAL 28 DAY, 28
+    UNION ALL SELECT CURDATE() - INTERVAL 29 DAY, 29
+) d
+CROSS JOIN (
+        SELECT PLAYER_ID FROM `player` WHERE PLAYER_ID BETWEEN '1001' AND '1010'
+) p
+ORDER BY p.PLAYER_ID, d.day;
+-- Note: original dump used LOCK/UNLOCK TABLES around this INSERT; removed for compatibility with piped import
+
+-- Re-enable foreign key checks after table creation and data insertion
+SET FOREIGN_KEY_CHECKS = 1;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
+;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */
+;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
+;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
+;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
+;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */
+;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */
+;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
+;
+
+-- Dump completed on 2025-08-17 12:23:28
+
+-- Reporting views for frontend charts with extensive GROUP BY and aggregate functions
+CREATE OR REPLACE VIEW training_last7 AS
+SELECT *
+    FROM training_records
+ WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL 7 DAY);
+
+CREATE OR REPLACE VIEW training_summary AS
+SELECT `day` AS DAY,
+             COUNT(*) AS session_count,
+             SUM(distance_covered) AS total_distance,
+             AVG(passing_accuracy) AS avg_accuracy
+    FROM training_records
+ GROUP BY `day`;
+
+-- Player performance summary with GROUP BY and aggregates
+CREATE OR REPLACE VIEW player_performance_summary AS
+SELECT 
+    tr.player_id,
+    p.PLAYER_NAME,
+    COUNT(*) AS total_sessions,
+    AVG(tr.distance_covered) AS avg_distance,
+    MAX(tr.distance_covered) AS max_distance,
+    MIN(tr.distance_covered) AS min_distance,
+    SUM(tr.distance_covered) AS total_distance,
+    AVG(tr.passing_accuracy) AS avg_passing_accuracy,
+    MAX(tr.passing_accuracy) AS max_passing_accuracy,
+    AVG(tr.sprint_count) AS avg_sprint_count,
+    SUM(tr.sprint_count) AS total_sprints,
+    AVG(tr.shots_on_target) AS avg_shots_on_target,
+    SUM(tr.shots_on_target) AS total_shots_on_target
+FROM training_records tr
+JOIN player p ON tr.player_id = p.PLAYER_ID
+GROUP BY tr.player_id, p.PLAYER_NAME;
+
+-- Training type performance with GROUP BY
+CREATE OR REPLACE VIEW training_type_performance AS
+SELECT 
+    t.training_id,
+    t.type AS training_type,
+    t.focus,
+    COUNT(tr.player_id) AS total_participants,
+    AVG(tr.distance_covered) AS avg_distance,
+    AVG(tr.passing_accuracy) AS avg_accuracy,
+    AVG(tr.sprint_count) AS avg_sprints,
+    AVG(tr.shots_on_target) AS avg_shots
+FROM training t
+JOIN training_records tr ON t.training_id = tr.training_id
+GROUP BY t.training_id, t.type, t.focus;
+
+-- Daily team performance with GROUP BY and aggregates
+CREATE OR REPLACE VIEW daily_team_performance AS
+SELECT 
+    tr.day,
+    COUNT(DISTINCT tr.player_id) AS active_players,
+    COUNT(*) AS total_sessions,
+    AVG(tr.distance_covered) AS team_avg_distance,
+    SUM(tr.distance_covered) AS team_total_distance,
+    AVG(tr.passing_accuracy) AS team_avg_accuracy,
+    MAX(tr.passing_accuracy) AS best_accuracy,
+    MIN(tr.passing_accuracy) AS worst_accuracy,
+    AVG(tr.sprint_count) AS team_avg_sprints,
+    SUM(tr.sprint_count) AS team_total_sprints
+FROM training_records tr
+GROUP BY tr.day
+ORDER BY tr.day DESC;
+
+-- Weekly performance aggregation with GROUP BY
+CREATE OR REPLACE VIEW weekly_performance AS
+SELECT 
+    YEARWEEK(tr.day) AS week_year,
+    DATE(DATE_SUB(tr.day, INTERVAL WEEKDAY(tr.day) DAY)) AS week_start,
+    COUNT(DISTINCT tr.player_id) AS unique_players,
+    COUNT(*) AS total_sessions,
+    AVG(tr.distance_covered) AS weekly_avg_distance,
+    SUM(tr.distance_covered) AS weekly_total_distance,
+    AVG(tr.passing_accuracy) AS weekly_avg_accuracy,
+    AVG(tr.sprint_count) AS weekly_avg_sprints,
+    AVG(tr.shots_on_target) AS weekly_avg_shots
+FROM training_records tr
+GROUP BY YEARWEEK(tr.day), DATE(DATE_SUB(tr.day, INTERVAL WEEKDAY(tr.day) DAY))
+ORDER BY week_year DESC;
+
+-- Player ranking with GROUP BY and window functions
+CREATE OR REPLACE VIEW player_rankings AS
+SELECT 
+    tr.player_id,
+    p.PLAYER_NAME,
+    AVG(tr.distance_covered) AS avg_distance,
+    AVG(tr.passing_accuracy) AS avg_accuracy,
+    RANK() OVER (ORDER BY AVG(tr.distance_covered) DESC) AS distance_rank,
+    RANK() OVER (ORDER BY AVG(tr.passing_accuracy) DESC) AS accuracy_rank,
+    RANK() OVER (ORDER BY AVG(tr.sprint_count) DESC) AS sprint_rank
+FROM training_records tr
+JOIN player p ON tr.player_id = p.PLAYER_ID
+GROUP BY tr.player_id, p.PLAYER_NAME;
+
+--
+-- Additional table for user authentication system
+--
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */
+;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */
+;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */
+;
+/*!50503 SET NAMES utf8 */
+;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */
+;
+/*!40103 SET TIME_ZONE='+00:00' */
+;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */
+;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */
+;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */
+;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */
+;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */
+;
+/*!50503 SET character_set_client = utf8mb4 */
+;
+CREATE TABLE `users` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `TEAM_ID` VARCHAR(20) NOT NULL,
+    `u_name` VARCHAR(100) NOT NULL,
+    `role` VARCHAR(100),
+    `email` VARCHAR(100) NOT NULL UNIQUE,
+    `password_hash` VARCHAR(255) NOT NULL,
+    FOREIGN KEY (`TEAM_ID`) REFERENCES `team` (`TEAM_ID`) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */
+;
+
+--
+-- Dumping data for table `users`
+--
+
+LOCK TABLES `users` WRITE;
+/*!40000 ALTER TABLE `users` DISABLE KEYS */
+;
+-- No initial data for users table - will be populated through signup process
+/*!40000 ALTER TABLE `users` ENABLE KEYS */
+;
+UNLOCK TABLES;
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */
+;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */
+;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */
+;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */
+;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
+;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */
+;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */
+;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */
+;
+
+--
+DELIMITER $$
+
+-- Procedure to fetch training sessions for the last N days
+DROP PROCEDURE IF EXISTS `sp_get_training_by_days`$$
+CREATE PROCEDURE `sp_get_training_by_days`(IN p_days INT)
+BEGIN
+    SELECT *
+        FROM training_records
+     WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL p_days DAY);
+END$$
+
+-- Function to compute average passing accuracy over the last N days
+DROP FUNCTION IF EXISTS `fn_avg_accuracy`$$
+CREATE FUNCTION `fn_avg_accuracy`(p_days INT)
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
+BEGIN
+    DECLARE result DECIMAL(5,2);
+    SELECT AVG(passing_accuracy)
+        INTO result
+        FROM training_records
+     WHERE `day` >= DATE_SUB(CURDATE(), INTERVAL p_days DAY);
+    RETURN result;
+END$$
+
+DELIMITER ;
+
+-- Metrics procedure used by backend for charts (optional env METRICS_PROCEDURE_NAME)
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `sp_training_performance_metrics`$$
+CREATE PROCEDURE `sp_training_performance_metrics`(IN p_player_id VARCHAR(20))
+BEGIN
+    IF p_player_id IS NULL OR p_player_id = '' THEN
+        SELECT player_id,
+               `day`,
+                            
+               passing_accuracy,
+               sprint_count,
+               shots_on_target
+          FROM training_records
+         ORDER BY `day` ASC;
+    ELSE
+        SELECT player_id,
+               `day`,
+               distance_covered,
+               passing_accuracy,
+               sprint_count,
+               shots_on_target
+          FROM training_records
+         WHERE player_id = p_player_id
+         ORDER BY `day` ASC;
+    END IF;
+END$$
+DELIMITER ;

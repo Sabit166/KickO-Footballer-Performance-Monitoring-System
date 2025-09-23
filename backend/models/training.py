@@ -4,12 +4,35 @@ import json
 
 training_bp = Blueprint('training', __name__, url_prefix='/trainings')
 
-# GET all training session types
+# Generate next training_id using sequence
+def get_next_training_id():
+    db = get_db()
+    cursor = db.cursor()
+    # Update sequence and get next value
+    cursor.execute("UPDATE training_sequence SET next_val = next_val + 1")
+    cursor.execute("SELECT next_val - 1 as current_val FROM training_sequence")
+    result = cursor.fetchone()
+    db.commit()
+    return f"TRN{result['current_val']:03d}"  # Format as TRN001, TRN002, etc.
+
+# GET all training session types with aggregated stats using GROUP BY
 @training_bp.route('/', methods=['GET'])
 def get_all_trainings():
     db = get_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM training")
+    # Use JOIN and GROUP BY to get training with performance stats
+    cursor.execute("""
+        SELECT 
+            t.*,
+            COUNT(tr.player_id) as total_sessions,
+            AVG(tr.distance_covered) as avg_distance,
+            AVG(tr.passing_accuracy) as avg_accuracy,
+            MAX(tr.day) as last_session_date
+        FROM training t
+        LEFT JOIN training_records tr ON t.training_id = tr.training_id
+        GROUP BY t.training_id, t.time_of_day, t.type, t.focus, t.activities, t.intensity, t.duration
+        ORDER BY t.training_id
+    """)
     trainings = cursor.fetchall()
     # Convert JSON string from DB to list/dict
     for training in trainings:
@@ -20,12 +43,30 @@ def get_all_trainings():
                 training['activities'] = [] # Or some other default
     return jsonify(trainings)
 
-# GET a single training session type by ID
-@training_bp.route('/<int:training_id>', methods=['GET'])
+# GET a single training session type by ID with aggregated performance
+@training_bp.route('/<string:training_id>', methods=['GET'])
 def get_training_by_id(training_id):
     db = get_db()
     cursor = db.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM training WHERE training_id = %s", (training_id,))
+    # Use JOIN and aggregate functions to get detailed stats
+    cursor.execute("""
+        SELECT 
+            t.*,
+            COUNT(tr.player_id) as total_participants,
+            COUNT(DISTINCT tr.player_id) as unique_players,
+            AVG(tr.distance_covered) as avg_distance,
+            MAX(tr.distance_covered) as max_distance,
+            MIN(tr.distance_covered) as min_distance,
+            AVG(tr.passing_accuracy) as avg_accuracy,
+            AVG(tr.sprint_count) as avg_sprints,
+            AVG(tr.shots_on_target) as avg_shots,
+            MAX(tr.day) as last_session,
+            MIN(tr.day) as first_session
+        FROM training t
+        LEFT JOIN training_records tr ON t.training_id = tr.training_id
+        WHERE t.training_id = %s
+        GROUP BY t.training_id, t.time_of_day, t.type, t.focus, t.activities, t.intensity, t.duration
+    """, (training_id,))
     training = cursor.fetchone()
     if training:
         if 'activities' in training and isinstance(training['activities'], str):
@@ -47,26 +88,29 @@ def add_training():
     db = get_db()
     cursor = db.cursor()
     
+    # Generate next training_id using sequence
+    training_id = get_next_training_id()
+    
     # Handle activities which is a JSON field
     activities = data.get('activities')
     if activities:
         activities = json.dumps(activities)
 
-    sql = """INSERT INTO training (time_of_day, type, focus, activities, intensity, duration)
-             VALUES (%s, %s, %s, %s, %s, %s)"""
+    sql = """INSERT INTO training (training_id, time_of_day, type, focus, activities, intensity, duration)
+             VALUES (%s, %s, %s, %s, %s, %s, %s)"""
     try:
         cursor.execute(sql, (
-            data['time_of_day'], data['type'], data['focus'],
+            training_id, data['time_of_day'], data['type'], data['focus'],
             activities, data['intensity'], data['duration']
         ))
         db.commit()
-        return jsonify({"message": "Training session type added successfully", "training_id": cursor.lastrowid}), 201
+        return jsonify({"message": "Training session type added successfully", "training_id": training_id}), 201
     except Exception as e:
         db.rollback()
         return jsonify({"error": str(e)}), 500
 
 # UPDATE a training session type
-@training_bp.route('/<int:training_id>', methods=['PUT'])
+@training_bp.route('/<string:training_id>', methods=['PUT'])
 def update_training(training_id):
     data = request.json
     db = get_db()

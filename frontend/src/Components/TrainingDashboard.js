@@ -145,6 +145,7 @@ export default function TrainingDashboard() {
   // UI state
   const [adminOpen, setAdminOpen] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+  const [showTeamAvg, setShowTeamAvg] = useState(false); // Added missing state for team/individual toggle
 
   // Carousel state
   const [activeIndex, setActiveIndex] = useState(0);
@@ -226,11 +227,7 @@ export default function TrainingDashboard() {
   const activePlayer = players[activeIndex] || null;
 
   // When user selects a player in carousel, prefill the record form
-  useEffect(() => {
-    if (activePlayer?.PLAYER_ID) {
-      setRecordForm((rf) => ({ ...rf, player_id: activePlayer.PLAYER_ID }));
-    }
-  }, [activePlayer]);
+  // Remove effect that syncs record form player_id with carousel animation
 
   // Derived map of playerId->name for tables
   const playerNameById = useMemo(() => {
@@ -404,8 +401,22 @@ export default function TrainingDashboard() {
           <div className="flex items-center gap-3">
             <img src="/kicko.png" alt="KickO" className="w-10 h-10 rounded-full" />
             <h1 className="text-xl font-bold text-white">Training Dashboard</h1>
-            <Chip label={`Avg Dist: ${avg.avgDistance} km`} size="medium" sx={{ ml: 2, color:'#0ea5b7', borderColor:'#0ea5b7', bgcolor:'rgba(14,165,183,0.12)', border: '1px solid' }} variant="outlined" />
-            <Chip label={`Avg Acc: ${avg.avgPassingAccuracy}%`} size="medium" sx={{ ml: 1, color:'#16a34a', borderColor:'#16a34a', bgcolor:'rgba(22,163,74,0.12)', border: '1px solid' }} variant="outlined" />
+            {activePlayer && !showTeamAvg && (
+              <>
+                <Chip label={`Player: ${activePlayer.PLAYER_NAME}`} size="medium" sx={{ ml: 2, color:'#fff', borderColor:'#fff', bgcolor:'rgba(0,0,0,0.12)', border: '1px solid' }} variant="outlined" />
+                <Chip label={`Avg Dist: ${playerSummary ? playerSummary.dist : '0'} km`} size="medium" sx={{ ml: 2, color:'#fff', borderColor:'#0ea5b7', bgcolor:'rgba(14,165,183,0.12)', border: '1px solid' }} variant="outlined" />
+                <Chip label={`Avg Acc: ${playerSummary ? playerSummary.acc : '0'}%`} size="medium" sx={{ ml: 1, color:'#fff', borderColor:'#16a34a', bgcolor:'rgba(22,163,74,0.12)', border: '1px solid' }} variant="outlined" />
+              </>
+            )}
+            {showTeamAvg && (
+              <>
+                <Chip label={`Team Avg Dist: ${avg.avgDistance} km`} size="medium" sx={{ ml: 2, color:'#fff', borderColor:'#0ea5b7', bgcolor:'rgba(14,165,183,0.12)', border: '1px solid' }} variant="outlined" />
+                <Chip label={`Team Avg Acc: ${avg.avgPassingAccuracy}%`} size="medium" sx={{ ml: 1, color:'#fff', borderColor:'#16a34a', bgcolor:'rgba(22,163,74,0.12)', border: '1px solid' }} variant="outlined" />
+              </>
+            )}
+            <Button variant="contained" sx={{ minWidth: 40, minHeight: 40, borderRadius: 2, ml: 2, bgcolor: showTeamAvg ? '#0ea5b7' : '#222', color: '#fff', fontWeight: 'bold', boxShadow: 'none' }} onClick={() => setShowTeamAvg((v) => !v)}>
+              {showTeamAvg ? 'P' : 'T'}
+            </Button>
           </div>
           <div className="flex items-center gap-3">
             <img src="/kicko.png" alt="KickO" className="w-10 h-10 rounded-full ring-2 ring-white/20" />
