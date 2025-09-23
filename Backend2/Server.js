@@ -28,218 +28,130 @@ catch (err) {
     console.error("Error creating team table:", err);
 };
 
-// Create Player_User table
 try {
     await db.execute(
-        `CREATE TABLE IF NOT EXISTS Player_User (
-            Player_ID VARCHAR(20) PRIMARY KEY,
-            Player_Name VARCHAR(100) NOT NULL,
-            Team VARCHAR(100) NOT NULL,
-            Email VARCHAR(100) NOT NULL UNIQUE,
-            Password VARCHAR(255) NOT NULL
+        `CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            TEAM_ID VARCHAR(20) NOT NULL,
+            u_name VARCHAR(100) NOT NULL,
+            role VARCHAR(100),
+            email VARCHAR(100) NOT NULL UNIQUE,
+            password_hash VARCHAR(255) NOT NULL,
+            FOREIGN KEY (TEAM_ID) REFERENCES team(TEAM_ID) ON DELETE CASCADE
         )`
     );
-    console.log("Player_User table created or already exists.");
+    console.log("Users table created or already exists.");
 }
 catch (err) {
-    console.error("Error creating Player_User table:", err);
-}
-
-// Create Admin_User table
-try {
-    await db.execute(
-        `CREATE TABLE IF NOT EXISTS Admin_User (
-            Admin_ID VARCHAR(20) PRIMARY KEY,
-            Email VARCHAR(100) NOT NULL UNIQUE,
-            Password VARCHAR(255) NOT NULL
-        )`
-    );
-    console.log("Admin_User table created or already exists.");
-}
-catch (err) {
-    console.error("Error creating Admin_User table:", err);
-}
+    console.error("Error creating users table:", err);
+};
 
 
-// Player Login
-app.post("/api/player/login", async (req, res) => {
-    const { playerId, playerName, teamName, email, password } = req.body;
+app.post("/api/login", async (req, res) => {
+    const { email, password, role, teamcode } = req.body;
 
     try {
-        if (!email || !password) {
-            return res.status(400).json({ error: "Email and password are required" });
+        if (!email || !password || !role || !teamcode) {
+            return res.status(400).json({ error: "Email, password, role, and team ID are required" });
         }
-
-        const [players] = await db.execute(
-            "SELECT * FROM Player_User WHERE Email = ?",
-            [email]
+        const [users] = await db.execute(
+            "SELECT * FROM users WHERE TEAM_ID = ? AND email = ? AND role = ?",
+            [teamcode, email, role]
         );
 
-        if (players.length === 0) {
-            return res.status(401).json({ error: "Invalid player credentials" });
+        if (users.length === 0) {
+            return res.status(401).json({ error: "Invalid credentials or role" });
         }
 
-        const player = players[0];
+        const user = users[0];
 
-        const isPasswordValid = await bcrypt.compare(password, player.Password);
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
         if (!isPasswordValid) {
             return res.status(401).json({ error: "Invalid credentials" });
         }
 
         res.status(200).json({
-            message: "Player login successful!",
+            message: "Login successful!",
             user: {
-                playerId: player.Player_ID,
-                playerName: player.Player_Name,
-                team: player.Team,
-                email: player.Email,
-                role: 'player'
+                id: user.id,
+                name: user.u_name,
+                email: user.email,
+                role: user.role,
+                teamId: user.TEAM_ID
             }
         });
     } catch (err) {
-        console.error("Player login error details:", err);
-        res.status(500).json({ error: "Error during player login: " + err.message });
+        console.error("Login error details:", err);
+        console.error("Error stack:", err.stack);
+        res.status(500).json({ error: "Error during login: " + err.message });
     }
 });
 
-// Admin Login
-app.post("/api/admin/login", async (req, res) => {
-    const { adminId, email, password } = req.body;
+app.post("/api/signup", async (req, res) => {
+    const { name, teamName, email, password, role } = req.body;
 
     try {
-        if (!email || !password) {
-            return res.status(400).json({ error: "Email and password are required" });
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: "Name, email, and password are required" });
         }
 
-        const [admins] = await db.execute(
-            "SELECT * FROM Admin_User WHERE Email = ?",
+        const [existingUser] = await db.execute(
+            "SELECT id FROM users WHERE email = ?",
             [email]
         );
 
-        if (admins.length === 0) {
-            return res.status(401).json({ error: "Invalid admin credentials" });
+        if (existingUser.length > 0) {
+            return res.status(400).json({ error: "Email already registered" });
         }
 
-        const admin = admins[0];
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        const isPasswordValid = await bcrypt.compare(password, admin.Password);
+        const [rows] = await db.execute(
+            "SELECT TEAM_ID FROM team ORDER BY TEAM_ID DESC LIMIT 1"
+        );
 
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: "Invalid credentials" });
-        }
+        let nextCode = "tm01";
+        if (rows.length > 0) {
+            const lastCode = rows[0].TEAM_ID;
 
-        res.status(200).json({
-            message: "Admin login successful!",
-            user: {
-                adminId: admin.Admin_ID,
-                email: admin.Email,
-                role: 'admin'
+            // Check if the last code follows "tm##" format
+            if (lastCode && lastCode.startsWith("tm") && lastCode.length >= 4) {
+                const numPart = lastCode.slice(2); // Extract number part after "tm"
+                const num = parseInt(numPart);
+                if (!isNaN(num)) {
+                    nextCode = "tm" + String(num + 1).padStart(2, "0");
+                }
+            } else {
+                // If existing data is numeric or different format, start fresh with tm01
+                // Or convert existing numeric to tm format
+                if (!isNaN(parseInt(lastCode))) {
+                    const num = parseInt(lastCode);
+                    nextCode = "tm" + String(num + 1).padStart(2, "0");
+                }
             }
-        });
-    } catch (err) {
-        console.error("Admin login error details:", err);
-        res.status(500).json({ error: "Error during admin login: " + err.message });
-    }
-});
-
-// Player Signup
-app.post("/api/player/signup", async (req, res) => {
-    const { playerId, playerName, team, email, password } = req.body;
-
-    try {
-        if (!playerId || !playerName || !team || !email || !password) {
-            return res.status(400).json({ error: "Player ID, player name, team, email, and password are required" });
         }
 
-        // Check if Player_ID already exists
-        const [existingPlayerId] = await db.execute(
-            "SELECT Player_ID FROM Player_User WHERE Player_ID = ?",
-            [playerId]
-        );
-
-        if (existingPlayerId.length > 0) {
-            return res.status(400).json({ error: "Player ID already exists" });
-        }
-
-        // Check if email already exists in Player_User
-        const [existingPlayer] = await db.execute(
-            "SELECT Player_ID FROM Player_User WHERE Email = ?",
-            [email]
-        );
-
-        if (existingPlayer.length > 0) {
-            return res.status(400).json({ error: "Email already registered as player" });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert new player
+        // Always insert team (use team name if provided, otherwise use a default name)
+        const finalTeamName = teamName || `Team ${nextCode}`;
         await db.execute(
-            "INSERT INTO Player_User (Player_ID, Player_Name, Team, Email, Password) VALUES (?, ?, ?, ?, ?)",
-            [playerId, playerName, team, email, hashedPassword]
+            "INSERT INTO team (TEAM_ID, TEAM_NAME) VALUES (?, ?)",
+            [nextCode, finalTeamName]
+        );
+
+        await db.execute(
+            "INSERT INTO users (TEAM_ID, u_name, role, email, password_hash) VALUES (?, ?, ?, ?, ?)",
+            [nextCode, name, role || 'admin', email, hashedPassword]
         );
 
         res.status(201).json({
-            message: "Player registered successfully!",
-            playerId: playerId,
-            playerName: playerName,
-            team: team
+            message: "User registered successfully!",
+            teamId: nextCode
         });
-
     } catch (err) {
-        console.error("Player signup error details:", err);
-        res.status(500).json({ error: "Error registering player: " + err.message });
-    }
-});
-
-// Admin Signup
-app.post("/api/admin/signup", async (req, res) => {
-    const { adminId, email, password } = req.body;
-
-    try {
-        if (!adminId || !email || !password) {
-            return res.status(400).json({ error: "Admin ID, email, and password are required" });
-        }
-
-        // Check if Admin_ID already exists
-        const [existingAdminId] = await db.execute(
-            "SELECT Admin_ID FROM Admin_User WHERE Admin_ID = ?",
-            [adminId]
-        );
-
-        if (existingAdminId.length > 0) {
-            return res.status(400).json({ error: "Admin ID already exists" });
-        }
-
-        // Check if email already exists in Admin_User
-        const [existingAdmin] = await db.execute(
-            "SELECT Admin_ID FROM Admin_User WHERE Email = ?",
-            [email]
-        );
-
-        if (existingAdmin.length > 0) {
-            return res.status(400).json({ error: "Email already registered as admin" });
-        }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Insert new admin
-        await db.execute(
-            "INSERT INTO Admin_User (Admin_ID, Email, Password) VALUES (?, ?, ?)",
-            [adminId, email, hashedPassword]
-        );
-
-        res.status(201).json({
-            message: "Admin registered successfully!",
-            adminId: adminId
-        });
-
-    } catch (err) {
-        console.error("Admin signup error details:", err);
-        res.status(500).json({ error: "Error registering admin: " + err.message });
+        console.error("Signup error details:", err);
+        console.error("Error stack:", err.stack);
+        res.status(500).json({ error: "Error registering user: " + err.message });
     }
 });
 
