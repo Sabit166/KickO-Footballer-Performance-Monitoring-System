@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     Drawer,
     List,
@@ -19,6 +20,7 @@ const drawerWidth = 240;
 
 export default function Adminpage() {
     const location = useLocation();
+        const navigate = useNavigate();
     const { role, teamid } = location.state || {};
 
     // Fallback: Try to get data from localStorage if not in state
@@ -49,6 +51,14 @@ export default function Adminpage() {
             ...prev,
             [itemText]: !prev[itemText]
         }));
+    };
+
+    const handleLogout = () => {
+        // Clear user data from localStorage
+        localStorage.removeItem('user');
+        
+        // Navigate to homepage
+        navigate('/');
     };
 
     return (
@@ -210,6 +220,39 @@ export default function Adminpage() {
                                     </React.Fragment>
                                 );
                             })}
+
+
+                            {/* Logout menu item at the bottom of sidebar */}
+                        <ListItem disablePadding sx={{ display: 'flex', justifyContent: 'center', marginTop: 'auto' }}>
+                            <ListItemButton
+                                onClick={handleLogout}
+                                sx={{
+                                    height: '30px',
+                                    width: '87%',
+                                    maxWidth: '220px',
+                                    margin: '4px 0',
+                                    backgroundColor: 'transparent',
+                                    borderRadius: '8px',
+                                    color: '#ffffff',
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                    },
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: '30px' }}>
+                                    <LogoutIcon sx={{ color: '#ffffff', width: '20px', height: '20px' }} />
+                                </ListItemIcon>
+                                <ListItemText
+                                    primary="Logout"
+                                    sx={{
+                                        '& .MuiListItemText-primary': {
+                                            color: '#ffffff',
+                                            fontWeight: 400,
+                                        }
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
                     </List>
                 </Box>
             </Drawer>
