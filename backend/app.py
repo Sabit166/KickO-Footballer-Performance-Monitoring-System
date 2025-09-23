@@ -17,6 +17,7 @@ from .models.player_stats import player_stats_bp
 from .models.team_performance import team_performance_bp
 from .models.training_records import training_records_bp
 from .models.addmatchwiz import addmatchwiz_bp
+from .models.player_self_performance import player_self_performance_bp
 
 app = Flask(__name__)
 # Ensure JSON is UTF-8 (don't coerce to ASCII), so names like "Mbappé" render correctly
@@ -36,6 +37,7 @@ app.register_blueprint(player_stats_bp)
 app.register_blueprint(player_performance_bp)
 app.register_blueprint(team_performance_bp)
 app.register_blueprint(addmatchwiz_bp)
+app.register_blueprint(player_self_performance_bp)
 
 # Close DB connection after request
 @app.teardown_appcontext

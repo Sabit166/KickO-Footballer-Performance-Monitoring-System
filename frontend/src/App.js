@@ -14,6 +14,7 @@ import AddMatchWizard from './Components/AddMatchWizard';
 import CoachPage from './Components/Coach';
 import Playerpage from './Components/Playerpage';
 import PlayerProfile from './Components/singlePlayer';
+import PlayerSelfPerformance from './Components/PlayerSelfPerformance';
 
 function App() {
 
@@ -37,11 +38,7 @@ function App() {
         <Route path="/playerdashboard" element={<Playerpage />}>
           <Route index element={<Emne />} />
           <Route path="player-profile" element={<PlayerProfile />} />
-          {/* <Route path="profile" element={<PlayerProfile />} />
-          <Route path="performance" element={<PlayersPerformancePage />} />
-          <Route path="injury" element={<Injury />} />
-          <Route path="team" element={<TeamProfile />} />
-          <Route path="match" element={<MatchPage />} /> */}
+          <Route path="performance" element={<PlayerSelfPerformance />} />
         </Route>
       </Routes>
     </Router>
