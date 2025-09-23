@@ -57,7 +57,7 @@ const Section = ({ children, backgroundColor }) => {
 export default function ScrollPage() {
     const navigate = useNavigate();
     const handleClick = () => {
-        navigate('/login');
+        navigate('/role-selection');
     }
     const [open, setOpen] = useState(false);
     return (

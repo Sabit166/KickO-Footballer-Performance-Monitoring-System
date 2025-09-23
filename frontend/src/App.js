@@ -3,8 +3,12 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import HomePage from './Components/HomePage';
 import Login from './Components/NewLogin';
+import NewPlayerLogin from './Components/NewPlayerLogin';
+import NewAdminLogin from './Components/NewAdminLogin';
+import PlayerProfile from './Components/singlePlayer';
 import Emne from './Components/Welcome';
 import Adminpage from './Components/Adminpage';
+import RoleSelection from './Components/RoleSelection';
 import Players from './Components/Players';
 import MatchPage from './Components/Match';
 import TeamPerformancePage from './Components/TeamPerformance';
@@ -13,16 +17,16 @@ import PlayersPerformancePage from './Components/PlayerPerformance';
 import AddMatchWizard from './Components/AddMatchWizard';
 import CoachPage from './Components/Coach';
 import Playerpage from './Components/Playerpage';
-import PlayerProfile from './Components/singlePlayer';
 
 function App() {
-
-
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/role-selection" element={<RoleSelection />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/player-login" element={<NewPlayerLogin />} />
+        <Route path="/admin-login" element={<NewAdminLogin />} />
         <Route path="/emne" element={<Emne />} />
         <Route path="/adminpage" element={<Adminpage />}>
           <Route index element={<Emne />} />
