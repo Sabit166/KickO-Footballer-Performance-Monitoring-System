@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import HomePage from './Components/HomePage';
 import Login from './Components/NewLogin';
-import Emne from './Components/Welcome';
+import Emne from './Components/Players';
 import Adminpage from './Components/Adminpage';
 import Players from './Components/Players';
 import MatchPage from './Components/Match';

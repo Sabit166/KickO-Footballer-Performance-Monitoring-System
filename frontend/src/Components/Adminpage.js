@@ -325,7 +325,7 @@ export default function Adminpage() {
                 <Box sx={{ overflow: "auto" }}>
                     <List>
                         {[
-                            { text: "Dashboard", path: ".", icon: '/football.png' },
+                            //{ text: "Dashboard", path: ".", icon: '/football.png' },
                             {
                                 text: "Manage Team", path: "player", icon: '/training.png', submenu: {
                                     items: [
