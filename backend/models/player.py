@@ -13,8 +13,8 @@ def add_player():
     data = request.json
     db = get_db()
     cursor = db.cursor()
-    sql = "INSERT INTO PLAYER (PLAYER_ID, PLAYER_NAME, HEIGHT, CONTRACT, WEIGHT) VALUES (%s, %s, %s, %s, %s)"
-    cursor.execute(sql, (data['PLAYER_ID'], data['PLAYER_NAME'], data['HEIGHT'], data['CONTRACT'], data['WEIGHT']))
+    sql = "INSERT INTO PLAYER (PLAYER_ID, PLAYER_NAME, HEIGHT, CONTRACT, WEIGHT, EMAIL) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(sql, (data['PLAYER_ID'], data['PLAYER_NAME'], data['HEIGHT'], data['CONTRACT'], data['WEIGHT'], data['EMAIL']))
     db.commit()
     return jsonify({"message": "Player added successfully", "PLAYER_ID": cursor.lastrowid})
 
@@ -39,21 +39,21 @@ def get_player_by_email(email):
 
 
 # UPDATE a player
-@player_bp.route('/players/<int:player_id>', methods=['PUT'])
+@player_bp.route('/players/<player_id>', methods=['PUT'])
 def update_player(player_id):
     data = request.json
     db = get_db()
     cursor = db.cursor()
     sql = """UPDATE PLAYER 
-             SET PLAYER_NAME=%s, HEIGHT=%s, CONTRACT=%s, WEIGHT=%s 
+             SET PLAYER_NAME=%s, HEIGHT=%s, CONTRACT=%s, WEIGHT=%s, EMAIL=%s 
              WHERE PLAYER_ID=%s"""
     cursor.execute(sql, (data['PLAYER_NAME'], data['HEIGHT'], 
-                         data['CONTRACT'], data['WEIGHT'], player_id))
+                         data['CONTRACT'], data['WEIGHT'], data['EMAIL'], player_id))
     db.commit()
     return jsonify({"message": "Player updated successfully"})
 
 # DELETE a player
-@player_bp.route('/players/<int:player_id>', methods=['DELETE'])
+@player_bp.route('/players/<player_id>', methods=['DELETE'])
 def delete_player(player_id):
     db = get_db()
     cursor = db.cursor()

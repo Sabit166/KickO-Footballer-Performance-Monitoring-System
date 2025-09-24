@@ -15,6 +15,7 @@ import CoachPage from './Components/Coach';
 import Playerpage from './Components/Playerpage';
 import PlayerProfile from './Components/singlePlayer';
 import PlayerSelfPerformance from './Components/PlayerSelfPerformance';
+import Injury from './Components/Injury';
 
 function App() {
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="training" element={<TrainingDashboard />} />
           <Route path="playerperformance" element={<PlayersPerformancePage />} />
           <Route path="coach" element={<CoachPage />} />
+          <Route path="injury" element={<Injury />} />
         </Route>
         <Route path="/playerdashboard" element={<Playerpage />}>
           <Route index element={<Emne />} />

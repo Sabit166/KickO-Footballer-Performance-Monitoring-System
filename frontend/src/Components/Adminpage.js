@@ -330,9 +330,10 @@ export default function Adminpage() {
                                 text: "Manage Team", path: "player", icon: '/training.png', submenu: {
                                     items: [
                                         { text: "Player", path: "player", icon: '/shoot.png' },
-                                        { text: "Coach", path: "addteam", icon: '/coach.png' },
+                                        { text: "Coach", path: "coach", icon: '/coach.png' },
                                         { text: "Physician", path: "addmanager", icon: '/doctor.png' },
-                                        { text: "Match", path: "match", icon: '/field.png' }  // New submenu item
+                                        { text: "Match", path: "match", icon: '/field.png' },
+                                        { text: "Injuries", path: "injury", icon: '/patient.png' }
                                     ]
                                 }
                             },
