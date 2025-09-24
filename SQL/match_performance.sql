@@ -140,8 +140,3 @@ JOIN stats s
 WHERE tm.MATCH_ID = %s
   AND sm.MATCH_ID = %s
 GROUP BY t.TEAM_NAME;
-
-
-
-
-
