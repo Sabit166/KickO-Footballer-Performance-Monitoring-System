@@ -5,14 +5,18 @@ venv/
 /.pnp
 .pnp.js
 Backend2/node_modules
+frontend/node_modules
+
 # testing
 /coverage
 
 # production
 /build
 *.pyc
+
 # misc
 .DS_Store
+.env
 .env.local
 .env.development.local
 .env.test.local
@@ -22,4 +26,24 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-backend/db.py
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python

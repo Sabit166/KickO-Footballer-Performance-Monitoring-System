@@ -1,0 +1,102 @@
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: kicko-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: p_dbms
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./SQL:/docker-entrypoint-initdb.d
+    networks:
+      - kicko-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Backend
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: kicko-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: p_dbms
+      FLASK_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kicko-network
+    volumes:
+      - ./backend:/app/backend
+
+  # Node.js Backend (Auth Server)
+  backend2:
+    build:
+      context: ./Backend2
+      dockerfile: Dockerfile
+    container_name: kicko-backend2
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: p_dbms
+      NODE_ENV: development
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kicko-network
+    volumes:
+      - ./Backend2:/app
+      - /app/node_modules
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kicko-frontend
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_BASE: http://localhost:5000
+      REACT_APP_AUTH_API: http://localhost:5001
+      WATCHPACK_POLLING: true
+    depends_on:
+      - backend
+      - backend2
+    networks:
+      - kicko-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  kicko-network:
+    driver: bridge

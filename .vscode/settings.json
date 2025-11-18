@@ -12,6 +12,20 @@
             "name": "Local instance MySQL80",
             "database": "p_dbms",
             "username": "root"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "ssh": "Disabled",
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3307,
+            "driver": "MySQL",
+            "name": "Local Instance MySQL80",
+            "database": "p_dbms",
+            "username": "root"
         }
     ],
     "C_Cpp.errorSquiggles": "enabled"

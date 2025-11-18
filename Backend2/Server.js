@@ -9,10 +9,10 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const db = await mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "p_dbms"
+    host: process.env.MYSQL_HOST || "localhost",
+    user: process.env.MYSQL_USER || "root",
+    password: process.env.MYSQL_PASSWORD || "root",
+    database: process.env.MYSQL_DATABASE || "p_dbms"
 });
 
 try {

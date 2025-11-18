@@ -1,0 +1,93 @@
+# Production Docker Compose Configuration
+# Use this for production deployments
+
+services:
+  # MySQL Database
+  db:
+    image: mysql:8.0
+    container_name: kicko-mysql-prod
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_CHARSET: utf8mb4
+      MYSQL_COLLATION: utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./SQL:/docker-entrypoint-initdb.d
+    networks:
+      - kicko-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Flask Backend (Production with Gunicorn)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kicko-backend-prod
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      FLASK_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kicko-network
+
+  # Node.js Backend (Auth Server)
+  backend2:
+    build:
+      context: ./Backend2
+      dockerfile: Dockerfile
+    container_name: kicko-backend2-prod
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kicko-network
+
+  # React Frontend (Production build with Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: kicko-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - backend2
+    networks:
+      - kicko-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  kicko-network:
+    driver: bridge
